@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<h2>Medication Details</h2>
+<h3>{{ medication.name }}</h3>
+<p>Date requested: {{ medication.date_requested }}</p>
+<p>Quantity: {{ medication.quantity }}</p>
+<p>Backordered: {{ medication.backordered }}</p>
+
+<h3>OpenFDA Data</h3>
+<p>{{ openfda_data }}</p>
+
+<a href="/medications">Back to Medications</a>
+{% endblock %}

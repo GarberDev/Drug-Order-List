@@ -1,0 +1,64 @@
+from flask_sqlalchemy import SQLAlchemy
+
+
+db = SQLAlchemy()
+
+
+def connect_db(app):
+    db.app = app
+    db.init_app(app)
+
+
+class MedicationToBeOrdered(db.Model):
+    __tablename__ = "medication_to_be_ordered"
+
+    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    name = db.Column(db.String(100), nullable=False)
+    date_requested = db.Column(db.Date, nullable=False)
+    backordered = db.Column(db.Boolean, default=False, nullable=False)
+    quantity = db.Column(db.Integer, nullable=False)
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
+
+    user = db.relationship('User', backref='medications_on_order')
+
+
+class MedicationOnOrder(db.Model):
+    __tablename__ = "medication_on_order"
+
+    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    name = db.Column(db.String(100), nullable=False)
+    date_order_placed = db.Column(db.Date, nullable=False)
+    quantity = db.Column(db.Integer, nullable=False)
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
+
+    user = db.relationship(
+        'User', backref='medications_on_order_backref', lazy=True)  # Change backref name here
+
+
+class OrderReceived(db.Model):
+    __tablename__ = "order_received"
+
+    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    name = db.Column(db.String(100), nullable=False)
+    date_received = db.Column(db.Date, nullable=False)
+    quantity = db.Column(db.Integer, nullable=False)
+    received_by = db.Column(db.String(30), nullable=False)
+
+
+class MasterListForReports(db.Model):
+    __tablename__ = "master_list_for_reports"
+
+    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    name = db.Column(db.String(100), nullable=False)
+    date_received = db.Column(db.Date, nullable=False)
+    quantity = db.Column(db.Integer, nullable=False)
+
+
+class User(db.Model):
+    __tablename__ = 'users'
+    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    username = db.Column(db.String(20), unique=True, nullable=False)
+    password = db.Column(db.String, nullable=False)
+    email = db.Column(db.String(50), unique=True, nullable=False)
+    first_name = db.Column(db.String(30), nullable=False)
+    last_name = db.Column(db.String(30), nullable=False)

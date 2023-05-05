@@ -20,3 +20,6 @@ The website will include the following functions:
 
 ## User Flow
 The user flow will consist of a split-screen with buttons at the top and bottom. The top will contain the list of drugs, and the bottom will display the relevant drug information and order status.
+
+## Database
+![database](database.jpg)

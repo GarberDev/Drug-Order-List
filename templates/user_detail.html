@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h2>{{ user.username }}</h2>
+<p>Email: {{ user.email }}</p>
+<p>First Name: {{ user.first_name }}</p>
+<p>Last Name: {{ user.last_name }}</p>
+
+<h3></h3>
+
+<form action="{{ url_for('delete_user', username=user.username) }}" method="post" class="d-inline-block">
+    <button type="submit" class="btn btn-danger">Delete Account</button>
+</form>
+{% endblock %}
