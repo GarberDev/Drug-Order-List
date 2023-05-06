@@ -1,13 +1,12 @@
 from flask import Flask, request, jsonify, render_template, redirect, url_for, flash, session
 import psycopg2
-from psycopg2 import IntegrityError
-from models import db, connect_db, User, MedicationToBeOrdered, MedicationOnOrder, OrderReceived
+from sqlalchemy.exc import IntegrityError
+from models import db, connect_db, User, Client, MedicationToBeOrdered, MedicationOnOrder, OrderReceived, TimeOffRequest
 from datetime import date
-from models import MedicationToBeOrdered, MedicationOnOrder, OrderReceived
-
+from datetime import datetime
 import requests
 
-from forms import RegistrationForm, LoginForm
+from forms import RegistrationForm, LoginForm, TimeOffRequestForm, EditBlacklistedClientForm
 
 
 app = Flask(__name__)
@@ -19,21 +18,20 @@ OPENFDA_API_BASE_URL = "https://api.fda.gov/drug/"
 connect_db(app)
 
 
-@app.route('/')
+@app.route('/', methods=['GET', 'POST'])
 def index():
-    register_url = url_for('register')
-    login_url = url_for('login')
-    if 'username' in session:
-        form = LoginForm()
-        username = User.query.filter_by(username=form.username.data).first()
-
-        return redirect(url_for('medications'))
-    else:
-        username = None
-    return render_template('index.html', register_url=register_url, login_url=login_url, username=username)
-
-
+    form = LoginForm()
+    if form.validate_on_submit():
+        user = User.query.filter_by(username=form.username.data).first()
+        if user and user.password == form.password.data:
+            session["username"] = user.username
+            flash('Logged in successfully!', 'success')
+            return redirect(url_for('medications', username=user.username))
+        else:
+            flash('Invalid username or password.', 'danger')
+    return render_template('login.html', form=form,)
 ################# user routes#####################
+
 
 @app.route('/register', methods=['GET', 'POST'])
 def register():
@@ -51,20 +49,6 @@ def register():
             db.session.rollback()
             flash('Username or Email is already taken.', 'danger')
     return render_template('register.html', form=form)
-
-
-@app.route('/login', methods=['GET', 'POST'])
-def login():
-    form = LoginForm()
-    if form.validate_on_submit():
-        user = User.query.filter_by(username=form.username.data).first()
-        if user and user.password == form.password.data:
-            session["username"] = user.username
-            flash('Logged in successfully!', 'success')
-            return redirect(url_for('medications', username=user.username))
-        else:
-            flash('Invalid username or password.', 'danger')
-    return render_template('login.html', form=form)
 
 
 @app.route('/logout')
@@ -94,14 +78,7 @@ def delete_user(username):
     db.session.commit()
     session.clear()
     return redirect('/')
-
-
-# @app.route("/")
-# def root():
-#     """Render homepage."""
-#     return render_template("medications.html")
-
-################# medication list routes#####################
+################# medication routes#####################
 
 
 @app.route("/medications")
@@ -138,12 +115,8 @@ def move_to_on_order(med_id):
     if 'username' not in session:
         flash('You must be logged in to place a medication on order.', 'danger')
         return redirect(url_for('login'))
-
     current_user = User.query.filter_by(username=session['username']).first()
-
-    # Update the variable name when querying the MedicationToBeOrdered model
     med_to_be_ordered = MedicationToBeOrdered.query.get_or_404(med_id)
-
     med_on_order = MedicationOnOrder(
         name=med_to_be_ordered.name,
         date_order_placed=date.today(),
@@ -184,11 +157,11 @@ def show_medication_details(med_id):
     return render_template("medication_details.html", medication=medication, openfda_data=openfda_data)
 
 
-# Add the function to fetch OpenFDA API data
+######## function to fetch OpenFDA API data###############
 def get_openfda_data(med_name):
     print(med_name)
     response = requests.get(
-        f"{OPENFDA_API_BASE_URL}label.json?search=dosage_forms_and_strengths:{med_name}")
+        f"{OPENFDA_API_BASE_URL}label.json?search={med_name}")
     print(response)
     data = response.json()
     print(data)
@@ -198,12 +171,110 @@ def get_openfda_data(med_name):
         return None
 
 
-# @app.route("/medications/new")
-# def new_medication():
-#     """Display the medication details form for a new medication."""
-#     medication = MedicationToBeOrdered.query.order_by(
-#         MedicationToBeOrdered.id.desc()).first()
-#     return redirect(url_for("medication_details", med_id=medication.id))
+@app.route("/medications/details")
+def get_medication_details():
+    medication = request.args.get('name', None)
+    if medication:
+        openfda_data = get_openfda_data(medication)
+        return render_template("medication_details.html", medication=medication, openfda_data=openfda_data)
+    else:
+        flash('No medication name provided.', 'danger')
+        return redirect(url_for('medications'))
+
+
+###################### reports##########################
+
+
+@app.route("/reports")
+def reports():
+    orders_received = OrderReceived.query.all()
+    return render_template("reports.html", orders_received=orders_received)
+
+############################ time off request#######################
+
+
+@app.route('/time_off_request', methods=['GET', 'POST'])
+def time_off_request():
+    form = TimeOffRequestForm()
+    form.covering_user.choices = [(u.id, u.username) for u in User.query.all()]
+
+    if form.validate_on_submit():
+        user = User.query.filter_by(username=session['username']).first()
+        time_off_request = TimeOffRequest(
+            user_id=user.id,
+            start_date=form.start_date.data,
+            end_date=form.end_date.data,
+            covering_user_id=form.covering_user.data
+        )
+        db.session.add(time_off_request)
+        db.session.commit()
+        flash('Time off request submitted.', 'success')
+        return redirect(url_for('show_time_off_requests'))
+
+    return render_template('time_off_request.html', form=form)
+
+
+@app.route('/time_off_request/edit/<int:time_off_request_id>', methods=['GET'])
+def show_edit_time_off_request(time_off_request_id):
+    time_off_request = TimeOffRequest.query.get_or_404(time_off_request_id)
+    current_user = User.query.filter_by(username=session['username']).first()
+    return render_template('edit_time_off_request.html', current_user=current_user, time_off_request=time_off_request)
+
+
+@app.route('/time_off_request/edit/<int:time_off_request_id>', methods=['POST'])
+def edit_time_off_request(time_off_request_id):
+    time_off_request = TimeOffRequest.query.get_or_404(time_off_request_id)
+    start_date = request.form['start_date']
+    end_date = request.form['end_date']
+
+    time_off_request.start_date = datetime.strptime(
+        start_date, "%Y-%m-%d").date()
+    time_off_request.end_date = datetime.strptime(end_date, "%Y-%m-%d").date()
+
+    db.session.commit()
+
+    return redirect(url_for('show_time_off_requests'))
+
+
+@app.route('/time_off_requests', methods=['GET'])
+def show_time_off_requests():
+    current_user = User.query.filter_by(username=session['username']).first()
+    user_time_off_requests = TimeOffRequest.query.filter_by(
+        user_id=current_user.id).all()
+    covered_time_off_requests = TimeOffRequest.query.filter_by(
+        covering_user_id=current_user.id).all()
+
+    return render_template('show_time_off_requests.html', user_time_off_requests=user_time_off_requests, covered_time_off_requests=covered_time_off_requests, current_user=current_user)
+
+################################## blacklisted clients#######################
+
+
+@app.route('/blacklisted_clients')
+def show_blacklisted_clients():
+    # Retrieve blacklisted clients from the database
+    blacklisted_clients = Client.query.filter(
+        Client.is_blacklisted == True).all()
+
+    return render_template('blacklisted_clients.html', blacklisted_clients=blacklisted_clients)
+
+
+@app.route('/edit_blacklisted_client/<int:client_id>', methods=['GET', 'POST'])
+def edit_blacklisted_client(client_id):
+    client = Client.query.get_or_404(client_id)
+    form = EditBlacklistedClientForm()
+
+    if form.validate_on_submit():
+        client.name = form.client_name.data
+        client.blacklist_reason = form.reason.data
+        client.blacklisting_person = form.blacklisting_person.data
+        db.session.commit()
+        flash('Blacklisted client has been updated.', 'success')
+        return redirect(url_for('show_blacklisted_clients'))
+
+    form.client_name.data = client.name
+    form.reason.data = client.blacklist_reason
+    form.blacklisting_person.data = client.blacklisting_person
+    return render_template('edit_blacklisted_client.html', form=form, client=client)
 
 
 if __name__ == "__main__":

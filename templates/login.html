@@ -1,15 +1,55 @@
-{% extends "base.html" %}
+<!DOCTYPE html>
+<html lang="en">
 
-{% block content %}
-<h1>Log In</h1>
-<form method="POST">
-    {{ form.csrf_token }}
-    <div class="form-group">
-        {{ form.username.label }} {{ form.username(class="form-control") }}
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Drug Ordering System</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='logincss.css') }}">
+
+</head>
+
+<body>
+
+
+    <div id="video-container">
+        <video id="background-video" autoplay muted loop>
+            <source src="{{ url_for('static', filename='pill.webm') }}" type="video/webm">
+            Your browser does not support the video tag.
+        </video>
     </div>
-    <div class="form-group">
-        {{ form.password.label }} {{ form.password(class="form-control") }}
+
+    <div id="glass-container">
+        <div id="text-layer">
+
+
+
+
+            <div id="glass-object">
+
+
+
+                <h1>Log In</h1>
+
+                <form method="POST">
+                    {{ form.csrf_token }}
+                    <div class="form-group">
+                        {{ form.username.label }} {{ form.username(class="form-control") }}
+                    </div>
+                    <div class="form-group">
+                        {{ form.password.label }} {{ form.password(class="form-control") }}
+                    </div>
+                    <button type="submit">Log In</button>
+                    <a class="log" href="{{ url_for('register') }}">Register</a>
+                </form>
+            </div>
+        </div>
+
+
+
     </div>
-    <button type="submit" class="btn btn-primary">Log In</button>
-</form>
-{% endblock %}
+
+</body>
+
+</html>

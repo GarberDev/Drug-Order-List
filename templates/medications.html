@@ -1,59 +1,99 @@
 {% extends "base.html" %}
 
 {% block content %}
-<hr>
-<nav>
-    <a href="{{ url_for('logout') }}">Logout</a>
-</nav>
-<hr>
-<h3>Add Medication to be Ordered</h3>
-<form class="input" action="/medications/to-be-ordered" method="POST">
-    <label for="name">Medication Name:</label>
-    <input type="text" id="name" name="name" required>
-    <label for="quantity">Quantity:</label>
-    <input type="number" id="quantity" name="quantity" required>
-    <label for="backordered">Backordered:</label>
-    <input type="checkbox" id="backordered" name="backordered">
-    <button type="submit">Add Medication</button>
-    <!-- Details button-->
-    <!-- <a href="/medications/new" class="btn btn-secondary">Details</a> -->
-</form>
-<hr>
-<h2>Medication To Be Ordered</h2>
-<ul>
-    {% for med in meds_to_be_ordered %}
-    <li>
-        <a href="/medications/{{ med.id }}">{{ med.name }}</a> - {{ med.date_requested }} - Quantity: {{ med.quantity }}
-        - Backordered: {{ med.backordered }} - Ordered by: {{ med.user.first_name }}
-        <form action="/medications/on-order/{{ med.id }}" method="POST">
-            <button type="submit">Move to On Order</button>
-        </form>
-    </li>
-    {% endfor %}
-</ul>
-<hr>
-<h2>Medication On Order</h2>
-<ul>
-    {% for med in meds_on_order %}
-    <li>
-        {{ med.name }} - {{ med.date_order_placed }} - Quantity: {{ med.quantity }}
-        - Ordered by: {{ med.user.first_name
-        }}
-        <form action="/medications/received/{{ med.id }}" method="POST">
-            <button type="submit">Move to Order Received</button>
-        </form>
-    </li>
-    {% endfor %}
-</ul>
-<hr>
-<h2>Order Received</h2>
-<ul>
-    {% for med in orders_received %}
-    <li>
-        {{ med.name }} - {{ med.date_received }} - Quantity: {{ med.quantity }} - Received by: {{ med.received_by }}
-    </li>
-    {% endfor %}
-</ul>
 
+<nav>
+
+    <a href="{{ url_for('show_blacklisted_clients') }}">Show Blacklisted Clients List</a>
+
+
+    <a href="{{ url_for('show_time_off_requests') }}">Show Time Off Requests</a>
+
+
+
+    <a href="{{ url_for('time_off_request') }}">Time Off Request</a>
+
+
+
+
+    <a href="{{ url_for('reports') }}">Reports</a>
+
+
+    <a href="{{ url_for('logout') }}">Logout</a>
+
+</nav>
+
+<div class="glass-pane">
+    <h3>Add Medication to be Ordered</h3>
+    <form class="input" action="/medications/to-be-ordered" method="POST">
+        <label for="name">Medication Name:</label>
+        <input type="text" id="name" name="name" required>
+        <label for="quantity">Quantity:</label>
+        <input type="number" id="quantity" name="quantity" required>
+        <label for="backordered">Backordered:</label>
+        <input type="checkbox" id="backordered" name="backordered">
+        <button type="submit">Add Medication</button>
+        <a href="{{ url_for('get_medication_details') }}" class="btn btn-info" id="get-details-btn">Get Details</a>
+
+    </form>
+</div>
+<div class="glass-pane">
+    <h2>Medication To Be Ordered</h2>
+    <ul>
+        {% for med in meds_to_be_ordered %}
+
+        <li>
+
+            <a href="/medications/{{ med.id }}">{{ med.name }}</a> - {{ med.date_requested }} - Quantity: {{
+            med.quantity }}
+            - Backordered: {{ med.backordered }} - Ordered by: {{ med.user.first_name }}
+            <form action="/medications/on-order/{{ med.id }}" method="POST">
+                <button type="submit">Move to On Order</button>
+            </form>
+
+        </li>
+
+        {% endfor %}
+    </ul>
+</div>
+
+<div class="glass-pane">
+
+    <h2>Medication On Order</h2>
+    <ul>
+        {% for med in meds_on_order %}
+        <li>
+
+            {{ med.name }} - {{ med.date_order_placed }} - Quantity: {{ med.quantity }}
+            - Ordered by: {{ med.user.first_name
+            }}
+            <form action="/medications/received/{{ med.id }}" method="POST">
+                <button type="submit">Move to Order Received</button>
+            </form>
+
+        </li>
+        {% endfor %}
+    </ul>
+</div>
+
+{% block scripts %}
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const getDetailsBtn = document.getElementById('get-details-btn');
+        const medNameInput = document.getElementById('name');
+
+        getDetailsBtn.addEventListener('click', function (e) {
+            e.preventDefault();
+            const medName = medNameInput.value;
+            if (medName) {
+                const detailsUrl = `/medications/details?name=${encodeURIComponent(medName)}`;
+                window.location.href = detailsUrl;
+            } else {
+                alert('Please enter a medication name.');
+            }
+        });
+    });
+</script>
+{% endblock %}
 
 {% endblock %}

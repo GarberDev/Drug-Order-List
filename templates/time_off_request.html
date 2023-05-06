@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="glass-pane">
+    <h2>Request Time Off</h2>
+    <form action="{{ url_for('time_off_request') }}" method="POST">
+        {{ form.hidden_tag() }}
+        <label for="start_date">Start Date:</label>
+        {{ form.start_date }}
+        <label for="end_date">End Date:</label>
+        {{ form.end_date }}
+        <label for="covering_user">Covering Person:</label>
+        {{ form.covering_user }}
+        {{ form.submit }}
+    </form>
+</div>
+{% endblock %}

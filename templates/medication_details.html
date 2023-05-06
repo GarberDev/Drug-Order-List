@@ -2,14 +2,45 @@
 
 {% block content %}
 
-<h2>Medication Details</h2>
-<h3>{{ medication.name }}</h3>
-<p>Date requested: {{ medication.date_requested }}</p>
-<p>Quantity: {{ medication.quantity }}</p>
-<p>Backordered: {{ medication.backordered }}</p>
+<div class="glass-pane">
+    <h2>Medication Details</h2>
+    <h3>{{ medication.name }}</h3>
+    <p>Date requested: {{ medication.date_requested }}</p>
+    <p>Quantity: {{ medication.quantity }}</p>
+    <p>Backordered: {{ medication.backordered }}</p>
+</div>
 
-<h3>OpenFDA Data</h3>
-<p>{{ openfda_data }}</p>
+<div id="datadiv" class="glass-pane">
+    <h3>OpenFDA Data</h3>
 
-<a href="/medications">Back to Medications</a>
+    <h4>Generic Name</h4>
+    <p>{{ openfda_data.openfda.generic_name|join('') }}</p>
+
+    <h4>Dosage and Administration</h4>
+    <p>{{ openfda_data.dosage_and_administration|join('') }}</p>
+
+    <h4>Dosage Table</h4>
+    {{ openfda_data.spl_medguide_table|join('') }}
+
+    <h4>Dosage Forms and Strengths</h4>
+    <p>{{ openfda_data.dosage_forms_and_strengths|join('') }}</p>
+
+    <h4>Dosage Forms and Strengths Table</h4>
+    <p>{{ openfda_data.dosage_forms_and_strengths_table|join('') }}</p>
+
+    <h4>Adverse Reactions</h4>
+    <p>{{ openfda_data.adverse_reactions|join('') }}</p>
+
+    <h4>Drug Interactions</h4>
+    <p>{{ openfda_data.drug_interactions|join('') }}</p>
+
+    <h4>Indications and Usage</h4>
+    <p>{{ openfda_data.indications_and_usage|join('') }}</p>
+
+
+</div>
+
+<div class="glass-pane">
+    <a href="/medications">Back to Medications</a>
+</div>
 {% endblock %}

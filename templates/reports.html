@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+{% block content %}
+
+<div class="glass-pane">
+    <h2>Order Received Reports</h2>
+    <ul>
+        {% for order in orders_received %}
+        <li>
+            <p>Name: {{ order.name }}</p>
+            <p>Date received: {{ order.date_received }}</p>
+            <p>Quantity: {{ order.quantity }}</p>
+            <p>Received by: {{ order.received_by }}</p>
+        </li>
+        {% endfor %}
+    </ul>
+</div>
+
+
+<div class="glass-pane">
+    <a href="/medications">Back to Medications</a>
+</div>
+
+
+{% endblock %}
