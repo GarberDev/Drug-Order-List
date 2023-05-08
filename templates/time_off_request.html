@@ -2,16 +2,38 @@
 
 {% block content %}
 <div class="glass-pane">
+
     <h2>Request Time Off</h2>
     <form action="{{ url_for('time_off_request') }}" method="POST">
         {{ form.hidden_tag() }}
-        <label for="start_date">Start Date:</label>
-        {{ form.start_date }}
-        <label for="end_date">End Date:</label>
-        {{ form.end_date }}
-        <label for="covering_user">Covering Person:</label>
-        {{ form.covering_user }}
-        {{ form.submit }}
-    </form>
+        <div>{{ form.shift_coverage_date }}</div>
+</div>
+<div class="form-group">
+    <label for="shift_time">Shift Time (HH:MM):</label>
+    <div>{{ form.shift_time }}</div>
+</div>
+<div class="form-group">
+    <label for="covering_user">Covering Person:</label>
+    <div>{{ form.covering_user }}</div>
+</div>
+<div class="form-group">
+    <label for="reason">Reason for Absent:</label>
+    <div>{{ form.reason }}</div>
+</div>
+<div class="form-group">
+    <label for="request_acknowledged">{{ form.request_acknowledged.label }}</label>
+    <div>{{ form.request_acknowledged }}</div>
+</div>
+{% if current_user.is_manager %}
+<div class="form-group">
+    <label for="manager_approval">{{ form.manager_approval.label }}</label>
+    <div>{{ form.manager_approval }}</div>
+</div>
+{% endif %}
+<div class="form-group">
+    {{ form.hidden_tag() }}
+    {{ form.submit }}
+</div>
+</form>
 </div>
 {% endblock %}

@@ -2,26 +2,51 @@
 
 {% block content %}
 
-
 <div class="glass-pane">
-
-
-
-
     <h1>Edit Time Off Request</h1>
     <form method="POST" action="{{ url_for('edit_time_off_request', time_off_request_id=time_off_request.id) }}">
-        <input type="hidden" name="time_off_request_id" value="{{ time_off_request.id }}">
-        <label for="start_date">Start Date:</label>
-        <input type="date" name="start_date" value="{{ time_off_request.start_date }}" required><br><br>
-        <label for="end_date">End Date:</label>
-        <input type="date" name="end_date" value="{{ time_off_request.end_date }}" required><br><br>
-        <input type="submit" value="Submit">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+        <ul class=flashes>
+            {% for category, message in messages %}
+            <li class="{{ category }}">{{ message }}</li>
+            {% endfor %}
+        </ul>
+        {% endif %}
+        {% endwith %}
+        {% for field in form %}
+        {% if field.errors %}
+        <ul class=errors>
+            {% for error in field.errors %}
+            <li>{{ error }}</li>
+            {% endfor %}
+        </ul>
+        {% endif %}
+        {% endfor %}
+
+
+
+        {{ form.hidden_tag() }}
+        <label for="shift_coverage_date">Shift Coverage Date:</label>
+        {{ form.shift_coverage_date(class_='form-control') }}
+        <label for="shift_time">Shift Time:</label>
+        {{ form.shift_time(class_='form-control') }}
+        <label for="covering_user">Covering Person:</label>
+        {{ form.covering_user(class_='form-control') }}
+        <label for="reason">Reason for Absent:</label>
+        {{ form.reason(class_='form-control') }}
+        <div class="form-group">
+            <label for="request_acknowledged">{{ form.request_acknowledged.label }}</label>
+            <div>{{ form.request_acknowledged }}</div>
+        </div>
+        {% if current_user.is_manager %}
+        <label for="manager_approval">{{ form.manager_approval.label }}</label>
+        {{ form.manager_approval(class_='form-control') }}
+        {% endif %}
+        {{ form.submit }}
     </form>
-
-
-
-
-
+    <a href="/medications">Back to Medications</a>
+    <a href="/time_off_requests">Back to Requests</a>
 </div>
 
 {% endblock %}

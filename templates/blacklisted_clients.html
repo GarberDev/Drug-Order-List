@@ -1,13 +1,10 @@
-{% extends "base.html" %}
-
-{% block content %}
 <div class="glass-pane">
     <h1>Blacklisted Clients</h1>
 
     <table>
         <thead>
             <tr>
-                <th>Client ID</th>
+                <!-- <th>Client ID</th> -->
                 <th>Client Name</th>
                 <th>Reason</th>
                 <th>Actions</th>
@@ -16,9 +13,9 @@
         <tbody>
             {% for client in blacklisted_clients %}
             <tr>
-                <td>{{ client.id }}</td>
+                <!-- <td>{{ client.id }}</td> -->
                 <td>{{ client.name }}</td>
-                <td>{{ client.blacklist_reason }}</td>
+                <td>{{ client.reason }}</td>
                 <td>
                     <a href="{{ url_for('edit_blacklisted_client', client_id=client.id) }}">Edit</a>
                 </td>
@@ -26,9 +23,8 @@
             {% endfor %}
         </tbody>
     </table>
-</div>
-<div class="glass-pane">
-    <a href="{{ url_for('medications') }}">Back to Home</a>
+
+    <a href="{{ url_for('add_blacklisted_client') }}">Create New Blacklisted Client</a>
 </div>
 
-{% endblock %}
+<a href="{{ url_for('medications') }}">Back to Home</a>

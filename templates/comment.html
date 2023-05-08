@@ -1,0 +1,13 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<h2>Comments</h2>
+{% for comment in comments %}
+<div class="card mb-3">
+    <div class="card-body">
+        <p class="card-text">{{ comment.content }}</p>
+        <p class="card-text"><small>By {{ comment.author }}</small></p>
+    </div>
+</div>
+{% endfor %}
+{% endblock %}

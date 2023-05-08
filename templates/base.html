@@ -6,19 +6,22 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Drug Ordering System</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='style3.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style4.css') }}">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons" />
+    <!-- <script src="https://unpkg.com/@mui/material@latest/umd/material-ui.development.js"></script> -->
+    <!-- <script src="https://unpkg.com/@mui/material@latest/umd/material-ui.production.min.js"></script> -->
 
 
 
 </head>
 
 <body>
-    <div id="video-container">
+    <!-- <div id="video-container">
         <video id="background-video" autoplay muted loop>
             <source src="{{ url_for('static', filename='background_dust.webm') }}" type="video/webm">
             Your browser does not support the video tag.
         </video>
-    </div>
+    </div> -->
     <header>
         <h1>Drug Ordering System</h1>
     </header>
@@ -27,9 +30,10 @@
 
     <main>
 
+
         {% block content %}
         {% endblock %}
-
+        <a href="/medications">Back to Medications</a>
     </main>
 </body>
 

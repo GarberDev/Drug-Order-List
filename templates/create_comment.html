@@ -1,0 +1,13 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<h1>Add a Comment to Post #{{ post.id }}</h1>
+<form action="{{ url_for('create_comment', post_id=post.id) }}" method="post">
+    {{ form.hidden_tag() }}
+    <div class="form-group">
+        <label for="content">Comment:</label>
+        {{ form.content(class="form-control") }}
+    </div>
+    <button type="submit" class="btn btn-primary">Submit</button>
+</form>
+{% endblock %}

@@ -1,6 +1,7 @@
 from flask_wtf import FlaskForm
-from wtforms import StringField, PasswordField, SubmitField, DateField, SelectField
-from wtforms.validators import DataRequired
+from wtforms import StringField, PasswordField, SubmitField, TextAreaField, DateField, SelectField, BooleanField
+from wtforms.validators import DataRequired, Length
+# from wtforms.fields.html5 import DateField
 
 
 class RegistrationForm(FlaskForm):
@@ -19,12 +20,28 @@ class LoginForm(FlaskForm):
 
 
 class TimeOffRequestForm(FlaskForm):
-    start_date = DateField('Start Date', validators=[
-                           DataRequired()], format='%Y-%m-%d')
-    end_date = DateField('End Date', validators=[
-                         DataRequired()], format='%Y-%m-%d')
+    shift_coverage_date = DateField('Shift Coverage Date', validators=[
+                                    DataRequired()], format='%Y-%m-%d')
     covering_user = SelectField('Covering Person', coerce=int, choices=[])
+    reason_choices = [('vacation', 'Vacation'), ('personal_leave', 'Personal Leave'), ('funeral', 'Funeral'),
+                      ('jury_duty', 'Jury Duty'), ('medical_leave', 'Medical Leave'), ('vote', 'To Vote'), ('other', 'Other')]
+    reason = SelectField('Reason for Absent', validators=[
+                         DataRequired()], choices=reason_choices)
+    shift_time = StringField('Shift Time', validators=[DataRequired()])
+    request_acknowledged = BooleanField(
+        'I understand that this request is subject to approval by my employer', validators=[DataRequired()])
+    manager_approval = BooleanField('Manager Approval')
     submit = SubmitField('Submit')
+
+
+class BlacklistClientForm(FlaskForm):
+    client_name = StringField('Client Name', validators=[
+                              DataRequired(), Length(min=2, max=100)])
+    reason = TextAreaField('Reason for Blacklisting', validators=[
+                           DataRequired(), Length(min=2, max=500)])
+    blacklisting_person = StringField('Person Blacklisting', validators=[
+                                      DataRequired(), Length(min=2, max=100)])
+    submit = SubmitField('Blacklist Client')
 
 
 class EditBlacklistedClientForm(FlaskForm):
@@ -33,3 +50,11 @@ class EditBlacklistedClientForm(FlaskForm):
     blacklisting_person = StringField(
         'Person Blacklisting Client', validators=[DataRequired()])
     submit = SubmitField('Update Blacklisted Client')
+
+
+class CreatePostForm(FlaskForm):
+    content = TextAreaField('Content', validators=[DataRequired()])
+
+
+class CommentForm(FlaskForm):
+    content = StringField('Comment', validators=[DataRequired()])

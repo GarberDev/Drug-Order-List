@@ -8,11 +8,14 @@
 {% for time_off_request in user_time_off_requests %}
 
 <div class="glass-pane">
-    <p><strong>Request ID:</strong> {{ time_off_request.id }}</p>
-    <p><strong>Start Date:</strong> {{ time_off_request.start_date }}</p>
-    <p><strong>End Date:</strong> {{ time_off_request.end_date }}</p>
+
+    <p><strong>Shift Coverage Date:</strong> {{ time_off_request.shift_coverage_date }}</p>
     <p><strong>Covering User:</strong> {{ time_off_request.covering_user.username }}</p>
+    <p><strong>Reason:</strong> {{ time_off_request.reason }}</p>
+    <p><strong>Manager Approval:</strong> {{ 'Yes' if time_off_request.manager_approval else 'No' }}</p>
     <a href="{{ url_for('show_edit_time_off_request', time_off_request_id=time_off_request.id) }}">Edit Time Off
+        Request</a>
+    <a href="{{ url_for('delete_time_off_request', time_off_request_id=time_off_request.id) }}">Delete Time Off
         Request</a>
 </div>
 
@@ -21,11 +24,14 @@
 <h2>Covering for Other Users</h2>
 {% for time_off_request in covered_time_off_requests %}
 <div class="glass-pane">
-    <p><strong>Request ID:</strong> {{ time_off_request.id }}</p>
+
     <p><strong>User:</strong> {{ time_off_request.user.username }}</p>
-    <p><strong>Start Date:</strong> {{ time_off_request.start_date }}</p>
-    <p><strong>End Date:</strong> {{ time_off_request.end_date }}</p>
+    <p><strong>Shift Coverage Date:</strong> {{ time_off_request.shift_coverage_date }}</p>
+    <p><strong>Reason:</strong> {{ time_off_request.reason }}</p>
+    <p><strong>Manager Approval:</strong> {{ 'Yes' if time_off_request.manager_approval else 'No' }}</p>
     <a href="{{ url_for('show_edit_time_off_request', time_off_request_id=time_off_request.id) }}">Edit Time Off
+        Request</a>
+    <a href="{{ url_for('delete_time_off_request', time_off_request_id=time_off_request.id) }}">Delete Time Off
         Request</a>
 </div>
 {% endfor %}

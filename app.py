@@ -1,13 +1,21 @@
-from flask import Flask, request, jsonify, render_template, redirect, url_for, flash, session
+from flask import Flask, abort, request, jsonify, render_template, redirect, url_for, flash, session
 import psycopg2
 from sqlalchemy.exc import IntegrityError
-from models import db, connect_db, User, Client, MedicationToBeOrdered, MedicationOnOrder, OrderReceived, TimeOffRequest
+from models import db, connect_db, User, Client, MedicationToBeOrdered, MedicationOnOrder, OrderReceived, TimeOffRequest, Post, Comment
 from datetime import date
 from datetime import datetime
+
 import requests
 
-from forms import RegistrationForm, LoginForm, TimeOffRequestForm, EditBlacklistedClientForm
+from forms import RegistrationForm, LoginForm, TimeOffRequestForm, EditBlacklistedClientForm, BlacklistClientForm, CreatePostForm, CommentForm
 
+from flask_wtf.csrf import CSRFProtect
+
+app = Flask(__name__)
+
+app.secret_key = 'your_secret_key'
+
+csrf = CSRFProtect(app)
 
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql:///drug_list'
@@ -197,43 +205,59 @@ def reports():
 def time_off_request():
     form = TimeOffRequestForm()
     form.covering_user.choices = [(u.id, u.username) for u in User.query.all()]
-
+    current_user = User.query.filter_by(username=session['username']).first()
     if form.validate_on_submit():
         user = User.query.filter_by(username=session['username']).first()
         time_off_request = TimeOffRequest(
             user_id=user.id,
-            start_date=form.start_date.data,
-            end_date=form.end_date.data,
-            covering_user_id=form.covering_user.data
+            shift_coverage_date=form.shift_coverage_date.data,
+            covering_user_id=form.covering_user.data,
+            shift_time=form.shift_time.data,
+            reason=form.reason.data,
+            request_acknowledged=form.request_acknowledged.data,
+            manager_approval=None
         )
         db.session.add(time_off_request)
         db.session.commit()
         flash('Time off request submitted.', 'success')
         return redirect(url_for('show_time_off_requests'))
 
-    return render_template('time_off_request.html', form=form)
+    return render_template('time_off_request.html', form=form, current_user=current_user)
 
+
+######################### edit time off request####################
 
 @app.route('/time_off_request/edit/<int:time_off_request_id>', methods=['GET'])
 def show_edit_time_off_request(time_off_request_id):
     time_off_request = TimeOffRequest.query.get_or_404(time_off_request_id)
+    form = TimeOffRequestForm(obj=time_off_request)
+    form.covering_user.choices = [(u.id, u.username) for u in User.query.all()]
     current_user = User.query.filter_by(username=session['username']).first()
-    return render_template('edit_time_off_request.html', current_user=current_user, time_off_request=time_off_request)
+    return render_template('edit_time_off_request.html', current_user=current_user, time_off_request=time_off_request, form=form)
 
 
-@app.route('/time_off_request/edit/<int:time_off_request_id>', methods=['POST'])
+@app.route('/time_off_request/edit/<int:time_off_request_id>', methods=['GET', 'POST'])
 def edit_time_off_request(time_off_request_id):
     time_off_request = TimeOffRequest.query.get_or_404(time_off_request_id)
-    start_date = request.form['start_date']
-    end_date = request.form['end_date']
+    form = TimeOffRequestForm(obj=time_off_request)
+    form.covering_user.choices = [(u.id, u.username) for u in User.query.all()]
+    current_user = User.query.filter_by(username=session['username']).first()
 
-    time_off_request.start_date = datetime.strptime(
-        start_date, "%Y-%m-%d").date()
-    time_off_request.end_date = datetime.strptime(end_date, "%Y-%m-%d").date()
+    if form.validate_on_submit():
+        print("Form submitted and passed validation")
+        time_off_request.shift_coverage_date = form.shift_coverage_date.data
+        time_off_request.covering_user_id = form.covering_user.data
+        time_off_request.reason = form.reason.data
+        time_off_request.request_acknowledged = form.request_acknowledged.data
+        time_off_request.manager_approval = form.manager_approval.data if current_user.is_manager else None
+        time_off_request.shift_time = form.shift_time.data
 
-    db.session.commit()
-
-    return redirect(url_for('show_time_off_requests'))
+        db.session.commit()
+        flash('Time off request updated.', 'success')
+        return redirect(url_for('show_time_off_requests'))
+    else:
+        print(form.errors)
+    return render_template('edit_time_off_request.html', form=form, current_user=current_user, time_off_request=time_off_request)
 
 
 @app.route('/time_off_requests', methods=['GET'])
@@ -245,6 +269,40 @@ def show_time_off_requests():
         covering_user_id=current_user.id).all()
 
     return render_template('show_time_off_requests.html', user_time_off_requests=user_time_off_requests, covered_time_off_requests=covered_time_off_requests, current_user=current_user)
+
+
+################################## delete###############################
+
+@app.route('/delete_time_off_request/<int:time_off_request_id>', methods=['GET'])
+def delete_time_off_request(time_off_request_id):
+    time_off_request = TimeOffRequest.query.get(time_off_request_id)
+    db.session.delete(time_off_request)
+    db.session.commit()
+    flash('Time off request deleted.')
+    return redirect(url_for('show_time_off_requests'))
+
+############################# managers#############################
+
+
+@app.route('/manager/time_off_requests')
+def manager_time_off_requests():
+    current_user = User.query.filter_by(username=session['username']).first()
+    if not current_user.is_manager:
+        abort(403)
+    time_off_requests = TimeOffRequest.query.filter_by(
+        manager_approval=False).all()
+    return render_template('manager_time_off_requests.html', time_off_requests=time_off_requests)
+
+
+@app.route('/manager/approve_time_off_request/<int:time_off_request_id>', methods=['POST'])
+def approve_time_off_request(time_off_request_id):
+    current_user = User.query.filter_by(username=session['username']).first()
+    if not current_user.is_manager:
+        abort(403)
+    time_off_request = TimeOffRequest.query.get(time_off_request_id)
+    time_off_request.manager_approval = True
+    db.session.commit()
+    return redirect(url_for('manager_time_off_requests'))
 
 ################################## blacklisted clients#######################
 
@@ -265,16 +323,124 @@ def edit_blacklisted_client(client_id):
 
     if form.validate_on_submit():
         client.name = form.client_name.data
-        client.blacklist_reason = form.reason.data
+        client.reason = form.reason.data
         client.blacklisting_person = form.blacklisting_person.data
         db.session.commit()
         flash('Blacklisted client has been updated.', 'success')
         return redirect(url_for('show_blacklisted_clients'))
 
     form.client_name.data = client.name
-    form.reason.data = client.blacklist_reason
+    form.reason.data = client.reason
     form.blacklisting_person.data = client.blacklisting_person
     return render_template('edit_blacklisted_client.html', form=form, client=client)
+
+
+@app.route('/add_blacklisted_client', methods=['GET', 'POST'])
+def add_blacklisted_client():
+    form = BlacklistClientForm()
+
+    if form.validate_on_submit():
+        new_client = Client(
+            name=form.client_name.data,
+            reason=form.reason.data,
+            blacklisting_person=form.blacklisting_person.data,
+            is_blacklisted=True
+        )
+        db.session.add(new_client)
+        db.session.commit()
+        flash('Client added to the blacklist.', 'success')
+        return redirect(url_for('show_blacklisted_clients'))
+
+    return render_template('add_blacklisted_client.html', form=form)
+
+########################### Messageboar##############################
+
+
+@app.route('/posts', methods=['GET', 'POST'])
+def posts():
+    if request.method == 'POST':
+        if 'username' not in session:
+            flash('You must be logged in to create a post.', 'danger')
+            return redirect(url_for('login'))
+
+        content = request.form['content']
+        user = User.query.filter_by(username=session['username']).first()
+        post = Post(content=content, user_id=user.id)
+        db.session.add(post)
+        db.session.commit()
+
+        flash('Post created successfully!', 'success')
+        return redirect(url_for('posts'))
+
+    posts = Post.query.order_by(Post.timestamp.desc()).all()
+    return render_template('posts.html', posts=posts)
+
+
+@app.route('/posts/<int:post_id>/comments', methods=['GET', 'POST'])
+def comments(post_id):
+    post = Post.query.get_or_404(post_id)
+
+    if request.method == 'POST':
+        if 'username' not in session:
+            flash('You must be logged in to comment on a post.', 'danger')
+            return redirect(url_for('login'))
+
+        content = request.form['content']
+        user = User.query.filter_by(username=session['username']).first()
+        comment = Comment(content=content, user_id=user.id, post_id=post_id)
+        db.session.add(comment)
+        db.session.commit()
+
+        flash('Comment added successfully!', 'success')
+        return redirect(url_for('comments', post_id=post_id))
+
+    comments = Comment.query.filter_by(
+        post_id=post.id).order_by(Comment.timestamp.desc()).all()
+
+    return render_template('comments.html', post=post, comments=comments)
+
+
+@app.route('/create_post', methods=['GET', 'POST'])
+def create_post():
+    form = CreatePostForm()
+    current_user = User.query.filter_by(username=session['username']).first()
+    if form.validate_on_submit():
+        post = Post(content=form.content.data, user_id=current_user.id)
+        db.session.add(post)
+        db.session.commit()
+        return redirect(url_for('posts'))
+    return render_template('create_post.html', form=form)
+
+
+@app.route('/post/<int:post_id>/create_comment', methods=['GET', 'POST'])
+def create_comment(post_id):
+    post = Post.query.get_or_404(post_id)
+    form = CommentForm()
+    if form.validate_on_submit():
+        comment = Comment(content=form.content.data, post_id=post.id)
+        db.session.add(comment)
+        db.session.commit()
+        return redirect(url_for('post_detail', post_id=post.id))
+    return render_template('create_comment.html', form=form, post=post)
+
+
+@app.route('/posts/<int:post_id>/delete', methods=['POST'])
+def delete_post(post_id):
+    if 'username' not in session:
+        flash('You must be logged in to delete a post.', 'danger')
+        return redirect(url_for('login'))
+
+    post = Post.query.get_or_404(post_id)
+    user = User.query.filter_by(username=session['username']).first()
+
+    if post.user_id != user.id:
+        flash('You do not have permission to delete this post.', 'danger')
+        return redirect(url_for('posts'))
+
+    db.session.delete(post)
+    db.session.commit()
+    flash('Post deleted successfully!', 'success')
+    return redirect(url_for('posts'))
 
 
 if __name__ == "__main__":

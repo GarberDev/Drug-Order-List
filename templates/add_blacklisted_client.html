@@ -2,8 +2,8 @@
 
 {% block content %}
 <div class="glass-pane">
-    <h2>Edit Blacklisted Client</h2>
-    <form action="{{ url_for('edit_blacklisted_client', client_id=client.id) }}" method="POST">
+    <h2>Add Blacklisted Client</h2>
+    <form action="{{ url_for('add_blacklisted_client') }}" method="POST">
         {{ form.hidden_tag() }}
         <label for="client_name">Client Name:</label>
         {{ form.client_name }}

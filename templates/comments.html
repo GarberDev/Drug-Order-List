@@ -1,0 +1,28 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<h1>{{ post.title }}</h1>
+<hr>
+
+<h2>Comments:</h2>
+{% if comments %}
+<ul>
+    {% for comment in comments %}
+    <li>
+        <p>{{ comment.content }}</p>
+        <small>Posted by {{ comment.user.username }} on {{ comment.timestamp.strftime('%Y-%m-%d %H:%M') }}</small>
+    </li>
+    {% endfor %}
+</ul>
+{% else %}
+<p>No comments yet.</p>
+{% endif %}
+
+<hr>
+<h3>Add a Comment:</h3>
+<form action="{{ url_for('comments', post_id=post.id) }}" method="POST">
+    <textarea name="content" rows="4" cols="50" placeholder="Write your comment here..." required></textarea>
+    <br>
+    <input type="submit" value="Submit Comment" class="btn btn-primary">
+</form>
+{% endblock %}

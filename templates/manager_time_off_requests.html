@@ -1,0 +1,8 @@
+{% for time_off_request in time_off_requests %}
+<div>
+    <p>{{ time_off_request.user.username }} requested time off on {{ time_off_request.date }}</p>
+    <form action="{{ url_for('approve_time_off_request', time_off_request_id=time_off_request.id) }}" method="post">
+        <input type="submit" value="Approve">
+    </form>
+</div>
+{% endfor %}
