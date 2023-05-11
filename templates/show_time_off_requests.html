@@ -31,12 +31,13 @@
     <p><strong>Manager Approval:</strong> {{ 'Yes' if time_off_request.manager_approval else 'No' }}</p>
     <a href="{{ url_for('show_edit_time_off_request', time_off_request_id=time_off_request.id) }}">Edit Time Off
         Request</a>
+
     <a href="{{ url_for('delete_time_off_request', time_off_request_id=time_off_request.id) }}">Delete Time Off
         Request</a>
 </div>
 {% endfor %}
 </div>
 <div class="glass-pane">
-    <a href="{{ url_for('medications') }}">Back to Home</a>
+
 </div>
 {% endblock %}

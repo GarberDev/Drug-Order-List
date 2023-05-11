@@ -2,27 +2,17 @@
 
 {% block content %}
 
-<nav>
-    <a href="{{ url_for('posts') }}">Messageboard</a>
-
-    <a href="{{ url_for('show_blacklisted_clients') }}">Show Blacklisted Clients List</a>
-
-
-    <a href="{{ url_for('show_time_off_requests') }}">Show Time Off Requests</a>
-
-
-
-    <a href="{{ url_for('time_off_request') }}">NEW Time-Off Request</a>
 
 
 
 
-    <a href="{{ url_for('reports') }}">Reports</a>
 
 
-    <a href="{{ url_for('logout') }}">Logout</a>
 
-</nav>
+
+
+
+
 
 <div class="glass-pane">
     <h3>Add Medication to be Ordered</h3>
@@ -33,8 +23,9 @@
         <input type="number" id="quantity" name="quantity" required>
         <label for="backordered">Backordered:</label>
         <input type="checkbox" id="backordered" name="backordered">
-        <button type="submit">Add Medication</button>
-        <a href="{{ url_for('get_medication_details') }}" class="btn btn-info" id="get-details-btn">Get Details</a>
+        <button class="btn btn-info" type="submit">Add Medication</button>
+        <a href="{{ url_for('get_medication_details') }}" class="btn btn-info" id="get-details-btn">Get
+            Details</a>
 
     </form>
 </div>
@@ -43,7 +34,7 @@
     <ul>
         {% for med in meds_to_be_ordered %}
 
-        <li>
+        <li class="list-group-item">
 
             <a href="/medications/{{ med.id }}">{{ med.name }}</a> - {{ med.date_requested }} - Quantity: {{
             med.quantity }}
@@ -63,7 +54,7 @@
     <h2>Medication On Order</h2>
     <ul>
         {% for med in meds_on_order %}
-        <li>
+        <li class="list-group-item">
 
             {{ med.name }} - {{ med.date_order_placed }} - Quantity: {{ med.quantity }}
             - Ordered by: {{ med.user.first_name
@@ -98,3 +89,7 @@
 {% endblock %}
 
 {% endblock %}
+<div class="line"></div>
+</div>
+</div>
+</div>

@@ -4,37 +4,86 @@
 <head>
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Drug Ordering System</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='style4.css') }}">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no">
+
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/css/bootstrap.min.css"
+        integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+
+    <title>Order System Plus</title>
+
+    <link rel="stylesheet" href="{{ url_for('static', filename='bootstrap.css') }}">
     <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons" />
-    <!-- <script src="https://unpkg.com/@mui/material@latest/umd/material-ui.development.js"></script> -->
-    <!-- <script src="https://unpkg.com/@mui/material@latest/umd/material-ui.production.min.js"></script> -->
 
-
-
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js"
+        integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q"
+        crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js"
+        crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/js/bootstrap.min.js"
+        integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl"
+        crossorigin="anonymous"></script>
+    <script src="{{ url_for('static', filename='script.js') }}"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
 </head>
 
+
+
 <body>
-    <!-- <div id="video-container">
-        <video id="background-video" autoplay muted loop>
-            <source src="{{ url_for('static', filename='background_dust.webm') }}" type="video/webm">
-            Your browser does not support the video tag.
-        </video>
-    </div> -->
-    <header>
-        <h1>Drug Ordering System</h1>
-    </header>
-
-
-
     <main>
 
+        <div class="wrapper">
+            <nav id="sidebar">
+                <div class="sidebar-header">
+                    <h3>OrderListPlus</h3>
+                    <hr>
+                </div>
+                <ul class="list-unstyled components">
+                    <p>SELECT</p>
 
-        {% block content %}
-        {% endblock %}
-        <a href="/medications">Back to Medications</a>
+                    <li> <a href="{{ url_for('medications') }}">Order List</a></li>
+                    <li><a href="{{ url_for('posts') }}">Messageboard</a></li>
+                    <li><a href="{{ url_for('show_blacklisted_clients') }}">Show Blacklisted Clients</a></li>
+                    <li> <a href="{{ url_for('show_time_off_requests') }}">Show Time Off Requests</a>
+                    </li>
+                    <li> <a href="{{ url_for('time_off_request') }}">NEW Time-Off Request</a>
+                    </li>
+                    <li> <a href="{{ url_for('reports') }}">Reports</a>
+                    </li>
+
+                    <li> <a href="{{ url_for('logout') }}" class="download">Log Out</a> </li>
+                </ul>
+            </nav>
+            <div style="width: 100%" class="content">
+                <nav class="navbar navbar-expand-lg navbar-light bg-light"> <button type="button" id="sidebarCollapse"
+                        class="btn btn-info"> <i class="fa fa-align-justify"></i> </button> <button
+                        class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav"
+                        aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation"> <span
+                            class="navbar-toggler-icon"></span>
+                    </button>
+                    <div class="collapse navbar-collapse" id="navbarNav">
+                        <ul class="navbar-nav ml-auto">
+                            <li class="nav-item active"> <a class="nav-link" href="{{ url_for('medications') }}">Home
+                                    <span class="sr-only">(current)</span></a> </li>
+
+                            <li class="nav-item"> <a class="nav-link" href="{{ url_for('suggest_feature') }}">Suggest
+                                    Edit or Feature</a> </li>
+                            <li class="nav-item"> <a class="nav-link" href="{{ url_for('logout') }}">Logout</a> </li>
+                        </ul>
+                    </div>
+                </nav>
+
+
+
+                {% block content %}
+
+
+                {% endblock %}
+
     </main>
+
 </body>
+
+
 
 </html>

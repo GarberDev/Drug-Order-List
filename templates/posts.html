@@ -1,6 +1,24 @@
 {% extends 'base.html' %}
 
 {% block content %}
+
+<div class="joke">
+    <h2>Joke of the Day</h2>
+    <p>{{ joke }}</p>
+</div>
+
+
+<div class="weather">
+    <h2>Weather</h2>
+    <p>Current Temperature: {{ current_temp }}°F</p>
+    <p>High Temperature: {{ high_temp }}°F</p>
+    <p>Low Temperature: {{ low_temp }}°F</p>
+    <p>Humidity: {{ humidity }}%</p>
+    <p>Wind Speed: {{ wind_speed_mph }} mph</p>
+    <p>Precipitation: {{ precipitation }}%</p>
+
+</div>
+<hr>
 <h2>Posts</h2>
 <a href="{{ url_for('create_post') }}" class="btn btn-primary">Create Post</a>
 <hr>
@@ -8,16 +26,31 @@
 <div class="card mb-3">
     <div class="card-body">
         <h5 class="card-title">{{ post.title }}</h5>
-        <p class="card-text">{{ post.content }}</p>
+        <h3 class="card-text">{{ post.content }}</h3>
+        <p class="card-text"><small class="text-muted">Posted on {{ post.timestamp.strftime('%Y-%m-%d %H:%M') }}</small>
+        </p>
 
+
+        {% if post.comments %}
+        <h5>Comments:</h5>
+        <ul>
+            {% for comment in post.comments %}
+            <li>
+                <strong>{{ comment.user.username }}</strong> - {{ comment.content }}
+                <small>({{ comment.timestamp.strftime('%Y-%m-%d %H:%M') }})</small>
+            </li>
+
+
+            {% endfor %}
+        </ul>
+        {% endif %}
+        <a href="{{ url_for('comments', post_id=post.id) }}" class="btn btn-primary">View Post</a>
         <form action="{{ url_for('delete_post', post_id=post.id) }}" method="POST">
             <input type="hidden" name="_method" value="DELETE">
             <button type="submit" class="btn btn-danger">Delete Post</button>
         </form>
-
-        <a href="{{ url_for('comments', post_id=post.id) }}" class="btn btn-primary">View Post</a>
-
     </div>
 </div>
+<hr>
 {% endfor %}
 {% endblock %}

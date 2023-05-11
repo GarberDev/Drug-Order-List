@@ -3,11 +3,12 @@ import psycopg2
 from sqlalchemy.exc import IntegrityError
 from models import db, connect_db, User, Client, MedicationToBeOrdered, MedicationOnOrder, OrderReceived, TimeOffRequest, Post, Comment
 from datetime import date
-from datetime import datetime
-
+from hidden import password
+import bcrypt
 import requests
+from flask_mail import Message, Mail
 
-from forms import RegistrationForm, LoginForm, TimeOffRequestForm, EditBlacklistedClientForm, BlacklistClientForm, CreatePostForm, CommentForm
+from forms import FeatureSuggestionForm, RegistrationForm, LoginForm, TimeOffRequestForm, EditBlacklistedClientForm, BlacklistClientForm, CreatePostForm, CommentForm
 
 from flask_wtf.csrf import CSRFProtect
 
@@ -18,9 +19,18 @@ app.secret_key = 'your_secret_key'
 csrf = CSRFProtect(app)
 
 app = Flask(__name__)
+
 app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql:///drug_list'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['SECRET_KEY'] = 'secret'
+app.config['MAIL_SERVER'] = 'smtp-mail.outlook.com'
+app.config['MAIL_PORT'] = 587
+app.config['MAIL_USE_TLS'] = True
+app.config['MAIL_USERNAME'] = 'justingarber@outlook.com'  # Your email address
+app.config['MAIL_PASSWORD'] = password     # Your email password
+
+mail = Mail(app)
+
 OPENFDA_API_BASE_URL = "https://api.fda.gov/drug/"
 
 connect_db(app)
@@ -31,7 +41,7 @@ def index():
     form = LoginForm()
     if form.validate_on_submit():
         user = User.query.filter_by(username=form.username.data).first()
-        if user and user.password == form.password.data:
+        if user and bcrypt.checkpw(form.password.data.encode('utf-8'), user.password.encode('utf-8')):
             session["username"] = user.username
             flash('Logged in successfully!', 'success')
             return redirect(url_for('medications', username=user.username))
@@ -45,7 +55,11 @@ def index():
 def register():
     form = RegistrationForm()
     if form.validate_on_submit():
-        user = User(username=form.username.data, password=form.password.data, email=form.email.data,
+        # Hash the password with bcrypt
+        hashed_password = bcrypt.hashpw(
+            form.password.data.encode('utf-8'), bcrypt.gensalt())
+
+        user = User(username=form.username.data, password=hashed_password.decode('utf-8'), email=form.email.data,
                     first_name=form.first_name.data, last_name=form.last_name.data)
         try:
             db.session.add(user)
@@ -203,6 +217,10 @@ def reports():
 
 @app.route('/time_off_request', methods=['GET', 'POST'])
 def time_off_request():
+    if 'username' not in session:
+        flash('You must be logged in to view this page.', 'danger')
+        return redirect(url_for('index'))
+
     form = TimeOffRequestForm()
     form.covering_user.choices = [(u.id, u.username) for u in User.query.all()]
     current_user = User.query.filter_by(username=session['username']).first()
@@ -371,9 +389,20 @@ def posts():
 
         flash('Post created successfully!', 'success')
         return redirect(url_for('posts'))
+    ####### joke#########
+    joke = get_joke()
+######## weather#########
+    weather_info = get_weather()
+
+    current_temp = weather_info['current_temp']
+    high_temp = weather_info['high_temp']
+    low_temp = weather_info['low_temp']
+    humidity = weather_info['humidity']
+    wind_speed_mph = weather_info['wind_speed_mph']
+    precipitation = weather_info['precipitation']
 
     posts = Post.query.order_by(Post.timestamp.desc()).all()
-    return render_template('posts.html', posts=posts)
+    return render_template('posts.html', posts=posts, joke=joke, current_temp=current_temp, high_temp=high_temp, low_temp=low_temp, humidity=humidity, wind_speed_mph=wind_speed_mph, precipitation=precipitation)
 
 
 @app.route('/posts/<int:post_id>/comments', methods=['GET', 'POST'])
@@ -441,6 +470,82 @@ def delete_post(post_id):
     db.session.commit()
     flash('Post deleted successfully!', 'success')
     return redirect(url_for('posts'))
+
+############################ add api's to messageboard######################
+
+
+@app.route('/joke')
+def get_joke():
+    url = 'https://icanhazdadjoke.com/'
+    headers = {'Accept': 'application/json'}
+    response = requests.get(url, headers=headers)
+    joke = response.json()['joke']
+    return joke
+
+
+@app.route('/weather')
+def get_weather():
+    latitude = 34.44
+    longitude = -118.61
+
+    url = f'https://api.open-meteo.com/v1/forecast?latitude={latitude}&longitude={longitude}&hourly=temperature_2m,apparent_temperature,precipitation_probability,relativehumidity_2m,windspeed_10m'
+    response = requests.get(url)
+    weather_data = response.json()
+    print(weather_data)
+
+    weather_info = {
+        'weather_data': None,
+        'current_temp': None,
+        'high_temp': None,
+        'low_temp': None,
+        'humidity': None,
+        'wind_speed_mph': None,
+        'precipitation': None
+    }
+
+    temperatures_celsius = weather_data['hourly']['temperature_2m']
+    temperatures_fahrenheit = [round((temp * 9/5) + 32, 1)
+                               for temp in temperatures_celsius]
+    weather_data['hourly']['temperature_2m'] = temperatures_fahrenheit
+
+    current_temp = weather_data['hourly']['temperature_2m'][0]
+    high_temp = max(weather_data['hourly']['temperature_2m'])
+    low_temp = min(weather_data['hourly']['temperature_2m'])
+    humidity = weather_data['hourly']['relativehumidity_2m'][0]
+    wind_speed_mph = round(
+        weather_data['hourly']['windspeed_10m'][0] * 2.23694, 1)
+    precipitation = weather_data['hourly']['precipitation_probability'][0]
+
+    weather_info = {
+        'weather_data': weather_data,
+        'current_temp': current_temp,
+        'high_temp': high_temp,
+        'low_temp': low_temp,
+        'humidity': humidity,
+        'wind_speed_mph': wind_speed_mph,
+        'precipitation': precipitation
+    }
+
+    return weather_info
+
+##################### suggestions#######################
+
+
+@app.route('/suggest_feature', methods=['GET', 'POST'])
+def suggest_feature():
+    form = FeatureSuggestionForm()
+    if form.validate_on_submit():
+        msg = Message('Feature Suggestion',
+                      sender=('Feature Suggestion',
+                              'justingarber@outlook.com'),
+                      recipients=['justingarber@outlook.com'])
+        msg.body = f'Suggestion: {form.suggestion.data}'
+        mail.send(msg)
+
+        flash('Feature suggestion submitted. Thank you!', 'success')
+        return redirect(url_for('medications'))
+
+    return render_template('suggest_feature.html', form=form)
 
 
 if __name__ == "__main__":

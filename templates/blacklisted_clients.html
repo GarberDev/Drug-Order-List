@@ -1,3 +1,11 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+
+
+
+
 <div class="glass-pane">
     <h1>Blacklisted Clients</h1>
 
@@ -24,7 +32,7 @@
         </tbody>
     </table>
 
-    <a href="{{ url_for('add_blacklisted_client') }}">Create New Blacklisted Client</a>
+
 </div>
 
-<a href="{{ url_for('medications') }}">Back to Home</a>
+{% endblock %}

@@ -58,3 +58,8 @@ class CreatePostForm(FlaskForm):
 
 class CommentForm(FlaskForm):
     content = StringField('Comment', validators=[DataRequired()])
+
+
+class FeatureSuggestionForm(FlaskForm):
+    suggestion = TextAreaField('Suggestion', validators=[DataRequired()])
+    submit = SubmitField('Submit')
