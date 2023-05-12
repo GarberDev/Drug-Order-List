@@ -1,33 +1,17 @@
 {% extends 'base.html' %}
 
 {% block content %}
-
-<div class="joke">
-    <h2>Joke of the Day</h2>
-    <p>{{ joke }}</p>
+<div class="glass-pane">
+    <a style="justify-content: center; padding-left: 100px; padding-right: 100px;" href="{{ url_for('create_post') }}"
+        class="btn btn-primary">Create Post</a>
 </div>
-
-
-<div class="weather">
-    <h2>Weather</h2>
-    <p>Current Temperature: {{ current_temp }}°F</p>
-    <p>High Temperature: {{ high_temp }}°F</p>
-    <p>Low Temperature: {{ low_temp }}°F</p>
-    <p>Humidity: {{ humidity }}%</p>
-    <p>Wind Speed: {{ wind_speed_mph }} mph</p>
-    <p>Precipitation: {{ precipitation }}%</p>
-
-</div>
-<hr>
-<h2>Posts</h2>
-<a href="{{ url_for('create_post') }}" class="btn btn-primary">Create Post</a>
-<hr>
 {% for post in posts %}
 <div class="card mb-3">
     <div class="card-body">
         <h5 class="card-title">{{ post.title }}</h5>
         <h3 class="card-text">{{ post.content }}</h3>
-        <p class="card-text"><small class="text-muted">Posted on {{ post.timestamp.strftime('%Y-%m-%d %H:%M') }}</small>
+        <p class="card-text"><small class="text-muted">Posted on {{ post.timestamp.strftime('%Y-%m-%d %H:%M')
+                }}</small>
         </p>
 
 
@@ -50,7 +34,8 @@
             <button type="submit" class="btn btn-danger">Delete Post</button>
         </form>
     </div>
+
 </div>
-<hr>
+
 {% endfor %}
 {% endblock %}

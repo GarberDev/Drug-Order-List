@@ -36,6 +36,7 @@ is_manager BOOLEAN NOT NULL DEFAULT false
 CREATE TABLE time_off_request (
 id SERIAL PRIMARY KEY,
 user_id INTEGER REFERENCES users(id) NOT NULL,
+shift_time VARCHAR(120) NOT NULL,
 shift_coverage_date DATE NOT NULL,
 covering_user_id INTEGER REFERENCES users(id),
 timestamp TIMESTAMP NOT NULL DEFAULT now(),
@@ -70,4 +71,3 @@ CREATE TABLE comments (
     FOREIGN KEY (user_id) REFERENCES users (id) ON DELETE CASCADE,
     FOREIGN KEY (post_id) REFERENCES posts (id) ON DELETE CASCADE
 );
-

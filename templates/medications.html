@@ -56,7 +56,8 @@
         {% for med in meds_on_order %}
         <li class="list-group-item">
 
-            {{ med.name }} - {{ med.date_order_placed }} - Quantity: {{ med.quantity }}
+            <a href="/medications/{{ med.id }}">{{ med.name }}</a> - {{ med.date_order_placed }} - Quantity: {{
+            med.quantity }}
             - Ordered by: {{ med.user.first_name
             }}
             <form action="/medications/received/{{ med.id }}" method="POST">

@@ -1,43 +1,71 @@
 {% extends "base.html" %}
 
 {% block content %}
-
-<h1>Time Off Requests</h1>
-
-<h2>My Time Off Requests</h2>
-{% for time_off_request in user_time_off_requests %}
-
 <div class="glass-pane">
+    <h1>Requests</h1>
+    <hr>
+    <h2>My Time Off Requests</h2>
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th scope="col">Shift Coverage Date</th>
+                <th scope="col">Shift Time</th>
+                <th scope="col">Covering User</th>
+                <th scope="col">Reason</th>
+                <th scope="col">Manager Approval</th>
+                <th scope="col">Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for time_off_request in user_time_off_requests %}
+            <tr>
+                <td>{{ time_off_request.shift_coverage_date }}</td>
+                <td>{{ time_off_request.shift_time }}</td>
+                <td>{{ time_off_request.covering_user.username }}</td>
+                <td>{{ time_off_request.reason }}</td>
+                <td>{{ 'Yes' if time_off_request.manager_approval else 'No' }}</td>
+                <td>
+                    <a
+                        href="{{ url_for('show_edit_time_off_request', time_off_request_id=time_off_request.id) }}">Edit</a>
+                    |
+                    <a
+                        href="{{ url_for('delete_time_off_request', time_off_request_id=time_off_request.id) }}">Delete</a>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
 
-    <p><strong>Shift Coverage Date:</strong> {{ time_off_request.shift_coverage_date }}</p>
-    <p><strong>Covering User:</strong> {{ time_off_request.covering_user.username }}</p>
-    <p><strong>Reason:</strong> {{ time_off_request.reason }}</p>
-    <p><strong>Manager Approval:</strong> {{ 'Yes' if time_off_request.manager_approval else 'No' }}</p>
-    <a href="{{ url_for('show_edit_time_off_request', time_off_request_id=time_off_request.id) }}">Edit Time Off
-        Request</a>
-    <a href="{{ url_for('delete_time_off_request', time_off_request_id=time_off_request.id) }}">Delete Time Off
-        Request</a>
-</div>
-
-{% endfor %}
-
-<h2>Covering for Other Users</h2>
-{% for time_off_request in covered_time_off_requests %}
-<div class="glass-pane">
-
-    <p><strong>User:</strong> {{ time_off_request.user.username }}</p>
-    <p><strong>Shift Coverage Date:</strong> {{ time_off_request.shift_coverage_date }}</p>
-    <p><strong>Reason:</strong> {{ time_off_request.reason }}</p>
-    <p><strong>Manager Approval:</strong> {{ 'Yes' if time_off_request.manager_approval else 'No' }}</p>
-    <a href="{{ url_for('show_edit_time_off_request', time_off_request_id=time_off_request.id) }}">Edit Time Off
-        Request</a>
-
-    <a href="{{ url_for('delete_time_off_request', time_off_request_id=time_off_request.id) }}">Delete Time Off
-        Request</a>
-</div>
-{% endfor %}
-</div>
-<div class="glass-pane">
-
+    <h2>Covering for Other Users</h2>
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th scope="col">User</th>
+                <th scope="col">Shift Coverage Date</th>
+                <th scope="col">Shift Time</th>
+                <th scope="col">Reason</th>
+                <th scope="col">Manager Approval</th>
+                <th scope="col">Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for time_off_request in covered_time_off_requests %}
+            <tr>
+                <td>{{ time_off_request.user.username }}</td>
+                <td>{{ time_off_request.shift_coverage_date }}</td>
+                <td>{{ time_off_request.shift_time }}</td>
+                <td>{{ time_off_request.reason }}</td>
+                <td>{{ 'Yes' if time_off_request.manager_approval else 'No' }}</td>
+                <td>
+                    <a
+                        href="{{ url_for('show_edit_time_off_request', time_off_request_id=time_off_request.id) }}">Edit</a>
+                    |
+                    <a
+                        href="{{ url_for('delete_time_off_request', time_off_request_id=time_off_request.id) }}">Delete</a>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
 </div>
 {% endblock %}

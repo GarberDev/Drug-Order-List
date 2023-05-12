@@ -25,6 +25,8 @@
         crossorigin="anonymous"></script>
     <script src="{{ url_for('static', filename='script.js') }}"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/js-cookie@2/dist/js.cookie.min.js"></script>
+
 </head>
 
 
@@ -33,7 +35,7 @@
     <main>
 
         <div class="wrapper">
-            <nav id="sidebar">
+            <nav id="sidebar" class="active">
                 <div class="sidebar-header">
                     <h3>OrderListPlus</h3>
                     <hr>
@@ -42,16 +44,20 @@
                     <p>SELECT</p>
 
                     <li> <a href="{{ url_for('medications') }}">Order List</a></li>
-                    <li><a href="{{ url_for('posts') }}">Messageboard</a></li>
+                    <li><a href="{{ url_for('posts') }}">Message Board</a></li>
                     <li><a href="{{ url_for('show_blacklisted_clients') }}">Show Blacklisted Clients</a></li>
+                    <li><a href="{{ url_for('add_blacklisted_client') }}">New Blacklisted Clients</a></li>
                     <li> <a href="{{ url_for('show_time_off_requests') }}">Show Time Off Requests</a>
                     </li>
                     <li> <a href="{{ url_for('time_off_request') }}">NEW Time-Off Request</a>
                     </li>
+                    <li> <a href="{{ url_for('display_weather') }}">Weather/Traffic</a>
+                    </li>
+
                     <li> <a href="{{ url_for('reports') }}">Reports</a>
                     </li>
 
-                    <li> <a href="{{ url_for('logout') }}" class="download">Log Out</a> </li>
+                    <li> <a href="{{ url_for('logout') }}">Log Out</a> </li>
                 </ul>
             </nav>
             <div style="width: 100%" class="content">
@@ -61,13 +67,20 @@
                         aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation"> <span
                             class="navbar-toggler-icon"></span>
                     </button>
+
                     <div class="collapse navbar-collapse" id="navbarNav">
                         <ul class="navbar-nav ml-auto">
-                            <li class="nav-item active"> <a class="nav-link" href="{{ url_for('medications') }}">Home
-                                    <span class="sr-only">(current)</span></a> </li>
+                            <li class="nav-link">
+                                {% include 'joke.html' %}
+
+
+                            </li>
+                            <li class="nav-item"> <a class="nav-link"
+                                    href="{{ url_for('user_detail', username=user_username) }}">User</a>
+                            </li>
 
                             <li class="nav-item"> <a class="nav-link" href="{{ url_for('suggest_feature') }}">Suggest
-                                    Edit or Feature</a> </li>
+                                    Edit</a> </li>
                             <li class="nav-item"> <a class="nav-link" href="{{ url_for('logout') }}">Logout</a> </li>
                         </ul>
                     </div>

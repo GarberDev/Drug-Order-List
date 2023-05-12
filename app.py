@@ -82,12 +82,15 @@ def logout():
 
 @app.route('/users/<username>')
 def user_detail(username):
+    print(username)
     if 'username' not in session or session['username'] != username:
         flash('You must be logged in to view this page.', 'danger')
         return redirect(url_for('login'))
+    print(username)
     user = User.query.get_or_404(username)
+    print(user)
 
-    return render_template('user_detail.html', user=user,)
+    return render_template('user_detail.html', user=user)
 
 
 @app.route('/users/<username>/delete', methods=['POST'])
@@ -100,6 +103,7 @@ def delete_user(username):
     db.session.commit()
     session.clear()
     return redirect('/')
+
 ################# medication routes#####################
 
 
@@ -108,7 +112,8 @@ def medications():
     meds_to_be_ordered = MedicationToBeOrdered.query.all()
     meds_on_order = MedicationOnOrder.query.all()
     orders_received = OrderReceived.query.all()
-    return render_template("medications.html", meds_to_be_ordered=meds_to_be_ordered, meds_on_order=meds_on_order, orders_received=orders_received)
+    joke = get_joke()
+    return render_template("medications.html", joke=joke, meds_to_be_ordered=meds_to_be_ordered, meds_on_order=meds_on_order, orders_received=orders_received)
 
 
 @app.route("/medications/to-be-ordered", methods=["POST"])
@@ -171,15 +176,19 @@ def move_to_received(med_id):
 
 ################# medication detail routes#####################
 
-
 @app.route("/medications/<int:med_id>")
 def show_medication_details(med_id):
-    medication = MedicationToBeOrdered.query.get_or_404(med_id)
+    medication = MedicationToBeOrdered.query.get(med_id)
+    med_on_order = None
+    if medication is None:
+        medication = MedicationOnOrder.query.get(med_id)
+        med_on_order = medication
     openfda_data = get_openfda_data(medication.name)
-    return render_template("medication_details.html", medication=medication, openfda_data=openfda_data)
-
+    return render_template("medication_details.html", medication=medication, openfda_data=openfda_data, med_on_order=med_on_order,)
 
 ######## function to fetch OpenFDA API data###############
+
+
 def get_openfda_data(med_name):
     print(med_name)
     response = requests.get(
@@ -210,7 +219,8 @@ def get_medication_details():
 @app.route("/reports")
 def reports():
     orders_received = OrderReceived.query.all()
-    return render_template("reports.html", orders_received=orders_received)
+    joke = get_joke()
+    return render_template("reports.html", orders_received=orders_received, joke=joke)
 
 ############################ time off request#######################
 
@@ -239,8 +249,8 @@ def time_off_request():
         db.session.commit()
         flash('Time off request submitted.', 'success')
         return redirect(url_for('show_time_off_requests'))
-
-    return render_template('time_off_request.html', form=form, current_user=current_user)
+    joke = get_joke()
+    return render_template('time_off_request.html', form=form, current_user=current_user, joke=joke)
 
 
 ######################### edit time off request####################
@@ -289,7 +299,7 @@ def show_time_off_requests():
     return render_template('show_time_off_requests.html', user_time_off_requests=user_time_off_requests, covered_time_off_requests=covered_time_off_requests, current_user=current_user)
 
 
-################################## delete###############################
+################################## delete time off request###############################
 
 @app.route('/delete_time_off_request/<int:time_off_request_id>', methods=['GET'])
 def delete_time_off_request(time_off_request_id):
@@ -330,8 +340,8 @@ def show_blacklisted_clients():
     # Retrieve blacklisted clients from the database
     blacklisted_clients = Client.query.filter(
         Client.is_blacklisted == True).all()
-
-    return render_template('blacklisted_clients.html', blacklisted_clients=blacklisted_clients)
+    joke = get_joke()
+    return render_template('blacklisted_clients.html', blacklisted_clients=blacklisted_clients, joke=joke)
 
 
 @app.route('/edit_blacklisted_client/<int:client_id>', methods=['GET', 'POST'])
@@ -389,20 +399,9 @@ def posts():
 
         flash('Post created successfully!', 'success')
         return redirect(url_for('posts'))
-    ####### joke#########
     joke = get_joke()
-######## weather#########
-    weather_info = get_weather()
-
-    current_temp = weather_info['current_temp']
-    high_temp = weather_info['high_temp']
-    low_temp = weather_info['low_temp']
-    humidity = weather_info['humidity']
-    wind_speed_mph = weather_info['wind_speed_mph']
-    precipitation = weather_info['precipitation']
-
     posts = Post.query.order_by(Post.timestamp.desc()).all()
-    return render_template('posts.html', posts=posts, joke=joke, current_temp=current_temp, high_temp=high_temp, low_temp=low_temp, humidity=humidity, wind_speed_mph=wind_speed_mph, precipitation=precipitation)
+    return render_template('posts.html', posts=posts, joke=joke)
 
 
 @app.route('/posts/<int:post_id>/comments', methods=['GET', 'POST'])
@@ -480,19 +479,40 @@ def get_joke():
     headers = {'Accept': 'application/json'}
     response = requests.get(url, headers=headers)
     joke = response.json()['joke']
-    return joke
+    return render_template('joke.html', joke=joke)
+########################### weather#######################
 
 
 @app.route('/weather')
-def get_weather():
-    latitude = 34.44
-    longitude = -118.61
+def get_weather(zip_code):
+    zip_code = request.args.get('zip')
+    if not zip_code:
+        return {'error': 'No zip code provided'}
+    ###################### google geocoding api###################
 
+    from hidden import GOOGLE_API_KEY
+
+    # Use Google Geocoding API to get latitude and longitude
+    geo_url = f'https://maps.googleapis.com/maps/api/geocode/json?address={zip_code}&key={GOOGLE_API_KEY}'
+    geo_response = requests.get(geo_url)
+    geo_data = geo_response.json()
+
+    if geo_data['status'] != 'OK':
+        return {'error': 'Invalid zip code'}
+
+    location = geo_data['results'][0]['geometry']['location']
+    latitude = location['lat']
+    longitude = location['lng']
+
+    # latitude = 10
+    # longitude = 80
+
+##################################### forecast################################
     url = f'https://api.open-meteo.com/v1/forecast?latitude={latitude}&longitude={longitude}&hourly=temperature_2m,apparent_temperature,precipitation_probability,relativehumidity_2m,windspeed_10m'
     response = requests.get(url)
     weather_data = response.json()
     print(weather_data)
-
+######### def weather_info##########
     weather_info = {
         'weather_data': None,
         'current_temp': None,
@@ -502,7 +522,7 @@ def get_weather():
         'wind_speed_mph': None,
         'precipitation': None
     }
-
+############ convert to fahrenheit##############
     temperatures_celsius = weather_data['hourly']['temperature_2m']
     temperatures_fahrenheit = [round((temp * 9/5) + 32, 1)
                                for temp in temperatures_celsius]
@@ -515,7 +535,7 @@ def get_weather():
     wind_speed_mph = round(
         weather_data['hourly']['windspeed_10m'][0] * 2.23694, 1)
     precipitation = weather_data['hourly']['precipitation_probability'][0]
-
+############### set variables################
     weather_info = {
         'weather_data': weather_data,
         'current_temp': current_temp,
@@ -546,6 +566,34 @@ def suggest_feature():
         return redirect(url_for('medications'))
 
     return render_template('suggest_feature.html', form=form)
+
+####################### weatherpage#######################
+
+
+@app.route('/display_weather', methods=['GET', 'POST'])
+def display_weather():
+
+    zip_code = request.args.get('zip')
+    if zip_code:
+        weather_info = get_weather(zip_code)
+    else:
+        weather_info = {
+            'weather_data': None,
+            'current_temp': None,
+            'high_temp': None,
+            'low_temp': None,
+            'humidity': None,
+            'wind_speed_mph': None,
+            'precipitation': None
+        }
+    current_temp = weather_info['current_temp']
+    high_temp = weather_info['high_temp']
+    low_temp = weather_info['low_temp']
+    humidity = weather_info['humidity']
+    wind_speed_mph = weather_info['wind_speed_mph']
+    precipitation = weather_info['precipitation']
+    joke = get_joke()
+    return render_template('weather.html', joke=joke, current_temp=current_temp, high_temp=high_temp, low_temp=low_temp, humidity=humidity, wind_speed_mph=wind_speed_mph, precipitation=precipitation)
 
 
 if __name__ == "__main__":

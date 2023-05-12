@@ -153,3 +153,8 @@ a.download:hover {
         display: none
     }
 }
+
+
+.glass-pane {
+    padding-left: 10px;
+}

@@ -1,46 +1,167 @@
 {% extends "base.html" %}
 
 {% block content %}
-
 <div class="glass-pane">
     <h2>Medication Details</h2>
-    <h3>{{ medication.name }}</h3>
-    <p>Date requested: {{ medication.date_requested }}</p>
-    <p>Quantity: {{ medication.quantity }}</p>
-    <p>Backordered: {{ medication.backordered }}</p>
+    <table class="table">
+        <tbody>
+            <tr>
+                <th scope="row">Name</th>
+                <td>{{ medication.name }}</td>
+            </tr>
+            <tr>
+                <th scope="row">Date requested</th>
+                <td>{{ medication.date_requested }}</td>
+            </tr>
+            <tr>
+                <th scope="row">Quantity</th>
+                <td>{{ medication.quantity }}</td>
+            </tr>
+            <tr>
+                <th scope="row">Backordered</th>
+                <td>{{ medication.backordered }}</td>
+            </tr>
+        </tbody>
+    </table>
 </div>
 
 <div id="datadiv" class="glass-pane">
     <h3>OpenFDA Data</h3>
+    <div id="accordion">
+        <div class="card">
+            <div class="card-header" id="headingOne">
+                <h5 class="mb-0">
+                    <button class="btn btn-link" data-toggle="collapse" data-target="#collapseOne" aria-expanded="true"
+                        aria-controls="collapseOne">
+                        Generic Name
+                    </button>
+                </h5>
+            </div>
+            <div id="collapseOne" class="collapse show" aria-labelledby="headingOne" data-parent="#accordion">
+                <div class="card-body">
+                    {{ openfda_data.openfda.generic_name|join('') }}
+                </div>
+            </div>
+        </div>
 
-    <h4>Generic Name</h4>
-    <p>{{ openfda_data.openfda.generic_name|join('') }}</p>
+        <div class="card">
+            <div class="card-header" id="headingTwo">
+                <h5 class="mb-0">
+                    <button class="btn btn-link collapsed" data-toggle="collapse" data-target="#collapseTwo"
+                        aria-expanded="false" aria-controls="collapseTwo">
+                        Dosage and Administration
+                    </button>
+                </h5>
+            </div>
+            <div id="collapseTwo" class="collapse" aria-labelledby="headingTwo" data-parent="#accordion">
+                <div class="card-body">
+                    {{ openfda_data.dosage_and_administration|join('') }}
+                </div>
+            </div>
+        </div>
 
-    <h4>Dosage and Administration</h4>
-    <p>{{ openfda_data.dosage_and_administration|join('') }}</p>
-
-    <h4>Dosage Table</h4>
-    {{ openfda_data.spl_medguide_table|join('') }}
-
-    <h4>Dosage Forms and Strengths</h4>
-    <p>{{ openfda_data.dosage_forms_and_strengths|join('') }}</p>
-
-    <h4>Dosage Forms and Strengths Table</h4>
-    <p>{{ openfda_data.dosage_forms_and_strengths_table|join('') }}</p>
-
-    <h4>Adverse Reactions</h4>
-    <p>{{ openfda_data.adverse_reactions|join('') }}</p>
-
-    <h4>Drug Interactions</h4>
-    <p>{{ openfda_data.drug_interactions|join('') }}</p>
-
-    <h4>Indications and Usage</h4>
-    <p>{{ openfda_data.indications_and_usage|join('') }}</p>
+        <div class="card">
+            <div class="card-header" id="headingThree">
+                <h5 class="mb-0">
+                    <button class="btn btn-link collapsed" data-toggle="collapse" data-target="#collapseThree"
+                        aria-expanded="false" aria-controls="collapseThree">
+                        Dosage Table
+                    </button>
+                </h5>
+            </div>
+            <div id="collapseThree" class="collapse" aria-labelledby="headingThree" data-parent="#accordion">
+                <div class="card-body">
+                    {{ openfda_data.spl_medguide_table|join('') }}
+                </div>
+            </div>
+        </div>
 
 
+
+
+        <div class="card">
+            <div class="card-header" id="headingFour">
+                <h5 class="mb-0">
+                    <button class="btn btn-link collapsed" data-toggle="collapse" data-target="#collapseFour"
+                        aria-expanded="false" aria-controls="collapseFour">
+                        Dosage Forms and Strengths
+                    </button>
+                </h5>
+            </div>
+            <div id="collapseFour" class="collapse" aria-labelledby="headingFour" data-parent="#accordion">
+                <div class="card-body">
+                    {{ openfda_data.dosage_forms_and_strengths|join('') }}
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-header" id="headingFive">
+                <h5 class="mb-0">
+                    <button class="btn btn-link collapsed" data-toggle="collapse" data-target="#collapseFive"
+                        aria-expanded="false" aria-controls="collapseFive">
+                        Dosage Forms and Strengths Table
+                    </button>
+                </h5>
+            </div>
+            <div id="collapseFive" class="collapse" aria-labelledby="headingFive" data-parent="#accordion">
+                <div class="card-body">
+                    {{ openfda_data.dosage_forms_and_strengths_table|join('') }}
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-header" id="headingSix">
+                <h5 class="mb-0">
+                    <button class="btn btn-link collapsed" data-toggle="collapse" data-target="#collapseSix"
+                        aria-expanded="false" aria-controls="collapseSix">
+                        Adverse Reactions
+                    </button>
+                </h5>
+            </div>
+            <div id="collapseSix" class="collapse" aria-labelledby="headingSix" data-parent="#accordion">
+                <div class="card-body">
+                    {{ openfda_data.adverse_reactions|join('') }}
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-header" id="headingSeven">
+                <h5 class="mb-0">
+                    <button class="btn btn-link collapsed" data-toggle="collapse" data-target="#collapseSeven"
+                        aria-expanded="false" aria-controls="collapseSeven">
+                        Drug Interactions
+                    </button>
+                </h5>
+            </div>
+            <div id="collapseSeven" class="collapse" aria-labelledby="headingSeven" data-parent="#accordion">
+                <div class="card-body">
+                    {{ openfda_data.drug_interactions|join('') }}
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-header" id="headingEight">
+                <h5 class="mb-0">
+                    <button class="btn btn-link collapsed" data-toggle="collapse" data-target="#collapseEight"
+                        aria-expanded="false" aria-controls="collapseEight">
+                        Indications and Usage
+                    </button>
+                </h5>
+            </div>
+            <div id="collapseEight" class="collapse" aria-labelledby="headingEight" data-parent="#accordion">
+                <div class="card-body">
+                    {{ openfda_data.indications_and_usage|join('') }}
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
 
 <div class="glass-pane">
     <a href="/medications">Back to Medications</a>
-</div>
-{% endblock %}
+
+    {% endblock %}

@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+{% block content %}
+
+
+<!-- 
+<div class="joke card">
+    <h2 class="card-header">Joke of the Day</h2>
+    <div class="card-body">
+        <p class="card-text">{{ joke }}</p>
+    </div>
+</div> -->
+
+<div class="weather card">
+    <h2 class="card-header">Weather</h2>
+    <div class="card-body">
+        <form action="{{ url_for('display_weather') }}" method="get">
+            <div class="form-group">
+                <label for="zip">Enter zip code:</label>
+                <input type="text" class="form-control" id="zip" name="zip" required>
+            </div>
+            <button type="submit" class="btn btn-primary">Get Weather</button>
+        </form>
+        <p class="card-text">Current Temperature: {{ current_temp }}°F</p>
+        <p class="card-text">High Temperature: {{ high_temp }}°F</p>
+        <p class="card-text">Low Temperature: {{ low_temp }}°F</p>
+        <p class="card-text">Humidity: {{ humidity }}%</p>
+        <p class="card-text">Wind Speed: {{ wind_speed_mph }} mph</p>
+        <p class="card-text">Precipitation: {{ precipitation }}%</p>
+    </div>
+</div>
+
+{% endblock %}

@@ -3,22 +3,30 @@
 
 <div class="glass-pane">
     <h2>Order Received Reports</h2>
-    <ul>
-        {% for order in orders_received %}
-        <li>
-            <p>Name: {{ order.name }}</p>
-            <p>Date received: {{ order.date_received }}</p>
-            <p>Quantity: {{ order.quantity }}</p>
-            <p>Received by: {{ order.received_by }}</p>
-        </li>
-        {% endfor %}
-    </ul>
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Name</th>
+                <th>Date Received</th>
+                <th>Quantity</th>
+                <th>Received By</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for order in orders_received %}
+            <tr>
+                <td>{{ order.name }}</td>
+                <td>{{ order.date_received }}</td>
+                <td>{{ order.quantity }}</td>
+                <td>{{ order.received_by }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
 </div>
-
 
 <div class="glass-pane">
 
 </div>
-
 
 {% endblock %}

@@ -25,25 +25,26 @@
         {% endfor %}
 
 
-
-        {{ form.hidden_tag() }}
-        <label for="shift_coverage_date">Shift Coverage Date:</label>
-        {{ form.shift_coverage_date(class_='form-control') }}
-        <label for="shift_time">Shift Time:</label>
-        {{ form.shift_time(class_='form-control') }}
-        <label for="covering_user">Covering Person:</label>
-        {{ form.covering_user(class_='form-control') }}
-        <label for="reason">Reason for Absent:</label>
-        {{ form.reason(class_='form-control') }}
         <div class="form-group">
-            <label for="request_acknowledged">{{ form.request_acknowledged.label }}</label>
-            <div>{{ form.request_acknowledged }}</div>
+            {{ form.hidden_tag() }}
+            <label for="shift_coverage_date">Shift Coverage Date:</label>
+            {{ form.shift_coverage_date(class_='form-control') }}
+            <label for="shift_time">Shift Time:</label>
+            {{ form.shift_time(class_='form-control') }}
+            <label for="covering_user">Covering Person:</label>
+            {{ form.covering_user(class_='form-control') }}
+            <label for="reason">Reason for Absent:</label>
+            {{ form.reason(class_='form-control') }}
+            <div class="form-group">
+                <label for="request_acknowledged">{{ form.request_acknowledged.label }}</label>
+                <div>{{ form.request_acknowledged }}</div>
+            </div>
+            {% if current_user.is_manager %}
+            <label for="manager_approval">{{ form.manager_approval.label }}</label>
+            {{ form.manager_approval(class_='form-control') }}
+            {% endif %}
+            {{ form.submit }}
         </div>
-        {% if current_user.is_manager %}
-        <label for="manager_approval">{{ form.manager_approval.label }}</label>
-        {{ form.manager_approval(class_='form-control') }}
-        {% endif %}
-        {{ form.submit }}
     </form>
     <a href="/medications">Back to Medications</a>
     <a href="/time_off_requests">Back to Requests</a>

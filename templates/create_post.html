@@ -1,14 +1,17 @@
 {% extends 'base.html' %}
 
 {% block content %}
-<h1>Create Post</h1>
-<form action="{{ url_for('create_post') }}" method="post">
-    {{ form.csrf_token }}
-    {{ form.hidden_tag() }}
-    <div class="form-group">
-        <label for="content">Content:</label>
-        {{ form.content(class="form-control", rows="3") }}
-    </div>
-    <button type="submit" class="btn btn-primary">Submit</button>
-</form>
+<div class="glass-pan">
+    <h1>Create Post</h1>
+    <form action="{{ url_for('create_post') }}" method="post">
+        {{ form.csrf_token }}
+        {{ form.hidden_tag() }}
+        <div class="form-group">
+            <label for="content">Content:</label>
+            {{ form.content(class="form-control", rows="1") }}
+
+            <button type="submit" class="btn btn-primary">Submit</button>
+        </div>
+    </form>
+</div>
 {% endblock %}

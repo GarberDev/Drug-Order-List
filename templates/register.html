@@ -1,23 +1,58 @@
-{% extends 'base.html' %}
+<!DOCTYPE html>
+<html lang="en">
 
-{% block title %}
-Register
-{% endblock %}
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Drug Ordering System</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='logincss.css') }}">
 
-{% block content %}
-<h1>Register</h1>
-<form method="POST" action="/register">
-    {{ form.hidden_tag() }}
-    {{ form.username.label }} {{ form.username }}
-    <br>
-    {{ form.password.label }} {{ form.password }}
-    <br>
-    {{ form.email.label }} {{ form.email }}
-    <br>
-    {{ form.first_name.label }} {{ form.first_name }}
-    <br>
-    {{ form.last_name.label }} {{ form.last_name }}
-    <br>
-    {{ form.submit }}
-</form>
-{% endblock %}
+</head>
+
+<body>
+
+
+    <div id="video-container">
+        <video id="background-video" autoplay muted loop>
+            <source src="{{ url_for('static', filename='pill_small.webm') }}" type="video/webm">
+            Your browser does not support the video tag.
+        </video>
+    </div>
+
+    <div id="glass-container">
+        <div id="text-layer">
+
+
+
+
+            <div id="glass-object">
+                <h1>Register</h1>
+                <form method="POST" action="/register">
+                    <div class="form-group">
+                        {{ form.hidden_tag() }}
+                        {{ form.username.label }} {{ form.username }}
+                    </div>
+                    <div class="form-group">
+                        {{ form.password.label }} {{ form.password }}
+                    </div>
+                    <div class="form-group">
+                        {{ form.email.label }} {{ form.email }}</div>
+                    <div class="form-group">
+                        {{ form.first_name.label }} {{ form.first_name }}</div>
+                    <div class="form-group">
+                        {{ form.last_name.label }} {{ form.last_name }}</div>
+                    <div class="form-group">
+                        {{ form.submit }}</div>
+                </form>
+                </form>
+            </div>
+        </div>
+
+
+
+    </div>
+
+</body>
+
+</html>
