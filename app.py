@@ -15,8 +15,8 @@ from flask_wtf.csrf import CSRFProtect
 
 flask_app = Flask(__name__)
 
-cli = FlaskGroup(flask_app)
-flask_app.cli.add_command(cli)
+# cli = FlaskGroup(flask_app)
+# flask_app.cli.add_command(cli)
 
 
 flask_app.secret_key = 'your_secret_key'
