@@ -41,6 +41,7 @@
             med.quantity }}
             - Backordered: {{ med.backordered }} - Ordered by: {{ med.user.first_name }}
             <form action="/medications/on-order/{{ med.id }}" method="POST">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                 <button type="submit">Move to On Order</button>
             </form>
 
@@ -62,6 +63,7 @@
             - Ordered by: {{ med.user.first_name
             }}
             <form action="/medications/received/{{ med.id }}" method="POST">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                 <button type="submit">Move to Order Received</button>
             </form>
 
