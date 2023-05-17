@@ -12,36 +12,36 @@ from forms import FeatureSuggestionForm, RegistrationForm, LoginForm, TimeOffReq
 from flask.cli import FlaskGroup
 from flask_wtf.csrf import CSRFProtect
 
-app = Flask(__name__)
+flask_app = Flask(__name__)
 
-cli = FlaskGroup(app)
-app.cli.add_command(cli)
+cli = FlaskGroup(flask_app)
+flask_app.cli.add_command(cli)
 
 
-app.secret_key = 'your_secret_key'
+flask_app.secret_key = 'your_secret_key'
 
-csrf = CSRFProtect(app)
+csrf = CSRFProtect(flask_app)
 
 
 # app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql:///drug_list'
-app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-app.config['SECRET_KEY'] = 'secret'
-app.config['MAIL_SERVER'] = 'smtp-mail.outlook.com'
-app.config['MAIL_PORT'] = 587
-app.config['MAIL_USE_TLS'] = True
-app.config['MAIL_USERNAME'] = mail_username  # Your email address
-app.config['MAIL_PASSWORD'] = password     # Your email password
+flask_app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+flask_app.config['SECRET_KEY'] = 'secret'
+flask_app.config['MAIL_SERVER'] = 'smtp-mail.outlook.com'
+flask_app.config['MAIL_PORT'] = 587
+flask_app.config['MAIL_USE_TLS'] = True
+flask_app.config['MAIL_USERNAME'] = mail_username  # Your email address
+flask_app.config['MAIL_PASSWORD'] = password     # Your email password
 
-mail = Mail(app)
+mail = Mail(flask_app)
 
 OPENFDA_API_BASE_URL = "https://api.fda.gov/drug/"
 
-connect_db(app)
-migrate = Migrate(app, db)
-migrate.init_app(app, db)
+connect_db(flask_app)
+migrate = Migrate(flask_app, db)
+migrate.init_app(flask_app, db)
 
 
-@app.route('/', methods=['GET', 'POST'])
+@flask_app.route('/', methods=['GET', 'POST'])
 def index():
     form = LoginForm()
     if form.validate_on_submit():
@@ -56,7 +56,7 @@ def index():
 ################# user routes#####################
 
 
-@app.route('/register', methods=['GET', 'POST'])
+@flask_app.route('/register', methods=['GET', 'POST'])
 def register():
     form = RegistrationForm()
     if form.validate_on_submit():
@@ -78,14 +78,14 @@ def register():
     return render_template('register.html', form=form)
 
 
-@app.route('/logout')
+@flask_app.route('/logout')
 def logout():
     session.pop("username", None)
     flash("You have been logged out.", "success")
     return redirect(url_for("index"))
 
 
-@app.route('/users/<username>')
+@flask_app.route('/users/<username>')
 def user_detail(username):
     print(username)
     if 'username' not in session or session['username'] != username:
@@ -98,7 +98,7 @@ def user_detail(username):
     return render_template('user_detail.html', user=user)
 
 
-@app.route('/users/<username>/delete', methods=['POST'])
+@flask_app.route('/users/<username>/delete', methods=['POST'])
 def delete_user(username):
     if 'username' not in session or session['username'] != username:
         flash('You must be logged in to view this page.', 'danger')
@@ -112,7 +112,7 @@ def delete_user(username):
 ################# medication routes#####################
 
 
-@app.route("/medications")
+@flask_app.route("/medications")
 def medications():
     meds_to_be_ordered = MedicationToBeOrdered.query.all()
     meds_on_order = MedicationOnOrder.query.all()
@@ -121,7 +121,7 @@ def medications():
     return render_template("medications.html", joke=joke, meds_to_be_ordered=meds_to_be_ordered, meds_on_order=meds_on_order, orders_received=orders_received)
 
 
-@app.route("/medications/to-be-ordered", methods=["POST"])
+@flask_app.route("/medications/to-be-ordered", methods=["POST"])
 def add_medication_to_be_ordered():
     if 'username' not in session:
         flash('You must be logged in to add a medication.', 'danger')
@@ -142,7 +142,7 @@ def add_medication_to_be_ordered():
     return redirect("/medications")
 
 
-@app.route("/medications/on-order/<int:med_id>", methods=["POST"])
+@flask_app.route("/medications/on-order/<int:med_id>", methods=["POST"])
 def move_to_on_order(med_id):
     if 'username' not in session:
         flash('You must be logged in to place a medication on order.', 'danger')
@@ -162,7 +162,7 @@ def move_to_on_order(med_id):
     return redirect("/medications")
 
 
-@app.route("/medications/received/<int:med_id>", methods=["POST"])
+@flask_app.route("/medications/received/<int:med_id>", methods=["POST"])
 def move_to_received(med_id):
     med_on_order = MedicationOnOrder.query.get_or_404(med_id)
 
@@ -181,7 +181,7 @@ def move_to_received(med_id):
 
 ################# medication detail routes#####################
 
-@app.route("/medications/<int:med_id>")
+@flask_app.route("/medications/<int:med_id>")
 def show_medication_details(med_id):
     medication = MedicationToBeOrdered.query.get(med_id)
     med_on_order = None
@@ -207,7 +207,7 @@ def get_openfda_data(med_name):
         return None
 
 
-@app.route("/medications/details")
+@flask_app.route("/medications/details")
 def get_medication_details():
     medication = request.args.get('name', None)
     if medication:
@@ -221,7 +221,7 @@ def get_medication_details():
 ###################### reports##########################
 
 
-@app.route("/reports")
+@flask_app.route("/reports")
 def reports():
     orders_received = OrderReceived.query.all()
     joke = get_joke()
@@ -230,7 +230,7 @@ def reports():
 ############################ time off request#######################
 
 
-@app.route('/time_off_request', methods=['GET', 'POST'])
+@flask_app.route('/time_off_request', methods=['GET', 'POST'])
 def time_off_request():
     if 'username' not in session:
         flash('You must be logged in to view this page.', 'danger')
@@ -260,7 +260,7 @@ def time_off_request():
 
 ######################### edit time off request####################
 
-@app.route('/time_off_request/edit/<int:time_off_request_id>', methods=['GET'])
+@flask_app.route('/time_off_request/edit/<int:time_off_request_id>', methods=['GET'])
 def show_edit_time_off_request(time_off_request_id):
     time_off_request = TimeOffRequest.query.get_or_404(time_off_request_id)
     form = TimeOffRequestForm(obj=time_off_request)
@@ -269,7 +269,7 @@ def show_edit_time_off_request(time_off_request_id):
     return render_template('edit_time_off_request.html', current_user=current_user, time_off_request=time_off_request, form=form)
 
 
-@app.route('/time_off_request/edit/<int:time_off_request_id>', methods=['GET', 'POST'])
+@flask_app.route('/time_off_request/edit/<int:time_off_request_id>', methods=['GET', 'POST'])
 def edit_time_off_request(time_off_request_id):
     time_off_request = TimeOffRequest.query.get_or_404(time_off_request_id)
     form = TimeOffRequestForm(obj=time_off_request)
@@ -293,7 +293,7 @@ def edit_time_off_request(time_off_request_id):
     return render_template('edit_time_off_request.html', form=form, current_user=current_user, time_off_request=time_off_request)
 
 
-@app.route('/time_off_requests', methods=['GET'])
+@flask_app.route('/time_off_requests', methods=['GET'])
 def show_time_off_requests():
     current_user = User.query.filter_by(username=session['username']).first()
     user_time_off_requests = TimeOffRequest.query.filter_by(
@@ -306,7 +306,7 @@ def show_time_off_requests():
 
 ################################## delete time off request###############################
 
-@app.route('/delete_time_off_request/<int:time_off_request_id>', methods=['GET'])
+@flask_app.route('/delete_time_off_request/<int:time_off_request_id>', methods=['GET'])
 def delete_time_off_request(time_off_request_id):
     time_off_request = TimeOffRequest.query.get(time_off_request_id)
     db.session.delete(time_off_request)
@@ -317,7 +317,7 @@ def delete_time_off_request(time_off_request_id):
 ############################# managers#############################
 
 
-@app.route('/manager/time_off_requests')
+@flask_app.route('/manager/time_off_requests')
 def manager_time_off_requests():
     current_user = User.query.filter_by(username=session['username']).first()
     if not current_user.is_manager:
@@ -327,7 +327,7 @@ def manager_time_off_requests():
     return render_template('manager_time_off_requests.html', time_off_requests=time_off_requests)
 
 
-@app.route('/manager/approve_time_off_request/<int:time_off_request_id>', methods=['POST'])
+@flask_app.route('/manager/approve_time_off_request/<int:time_off_request_id>', methods=['POST'])
 def approve_time_off_request(time_off_request_id):
     current_user = User.query.filter_by(username=session['username']).first()
     if not current_user.is_manager:
@@ -340,7 +340,7 @@ def approve_time_off_request(time_off_request_id):
 ################################## blacklisted clients#######################
 
 
-@app.route('/blacklisted_clients')
+@flask_app.route('/blacklisted_clients')
 def show_blacklisted_clients():
     # Retrieve blacklisted clients from the database
     blacklisted_clients = Client.query.filter(
@@ -349,7 +349,7 @@ def show_blacklisted_clients():
     return render_template('blacklisted_clients.html', blacklisted_clients=blacklisted_clients, joke=joke)
 
 
-@app.route('/edit_blacklisted_client/<int:client_id>', methods=['GET', 'POST'])
+@flask_app.route('/edit_blacklisted_client/<int:client_id>', methods=['GET', 'POST'])
 def edit_blacklisted_client(client_id):
     client = Client.query.get_or_404(client_id)
     form = EditBlacklistedClientForm()
@@ -368,7 +368,7 @@ def edit_blacklisted_client(client_id):
     return render_template('edit_blacklisted_client.html', form=form, client=client)
 
 
-@app.route('/add_blacklisted_client', methods=['GET', 'POST'])
+@flask_app.route('/add_blacklisted_client', methods=['GET', 'POST'])
 def add_blacklisted_client():
     form = BlacklistClientForm()
 
@@ -389,7 +389,7 @@ def add_blacklisted_client():
 ########################### Messageboar##############################
 
 
-@app.route('/posts', methods=['GET', 'POST'])
+@flask_app.route('/posts', methods=['GET', 'POST'])
 def posts():
     if request.method == 'POST':
         if 'username' not in session:
@@ -409,7 +409,7 @@ def posts():
     return render_template('posts.html', posts=posts, joke=joke)
 
 
-@app.route('/posts/<int:post_id>/comments', methods=['GET', 'POST'])
+@flask_app.route('/posts/<int:post_id>/comments', methods=['GET', 'POST'])
 def comments(post_id):
     post = Post.query.get_or_404(post_id)
 
@@ -433,7 +433,7 @@ def comments(post_id):
     return render_template('comments.html', post=post, comments=comments)
 
 
-@app.route('/create_post', methods=['GET', 'POST'])
+@flask_app.route('/create_post', methods=['GET', 'POST'])
 def create_post():
     form = CreatePostForm()
     current_user = User.query.filter_by(username=session['username']).first()
@@ -445,7 +445,7 @@ def create_post():
     return render_template('create_post.html', form=form)
 
 
-@app.route('/post/<int:post_id>/create_comment', methods=['GET', 'POST'])
+@flask_app.route('/post/<int:post_id>/create_comment', methods=['GET', 'POST'])
 def create_comment(post_id):
     post = Post.query.get_or_404(post_id)
     form = CommentForm()
@@ -457,7 +457,7 @@ def create_comment(post_id):
     return render_template('create_comment.html', form=form, post=post)
 
 
-@app.route('/posts/<int:post_id>/delete', methods=['POST'])
+@flask_app.route('/posts/<int:post_id>/delete', methods=['POST'])
 def delete_post(post_id):
     if 'username' not in session:
         flash('You must be logged in to delete a post.', 'danger')
@@ -478,7 +478,7 @@ def delete_post(post_id):
 ############################ add api's to messageboard######################
 
 
-@app.route('/joke')
+@flask_app.route('/joke')
 def get_joke():
     url = 'https://icanhazdadjoke.com/'
     headers = {'Accept': 'application/json'}
@@ -488,7 +488,7 @@ def get_joke():
 ########################### weather#######################
 
 
-@app.route('/weather')
+@flask_app.route('/weather')
 def get_weather(zip_code):
     zip_code = request.args.get('zip')
     if not zip_code:
@@ -556,7 +556,7 @@ def get_weather(zip_code):
 ##################### suggestions#######################
 
 
-@app.route('/suggest_feature', methods=['GET', 'POST'])
+@flask_app.route('/suggest_feature', methods=['GET', 'POST'])
 def suggest_feature():
     form = FeatureSuggestionForm()
     if form.validate_on_submit():
@@ -575,7 +575,7 @@ def suggest_feature():
 ####################### weatherpage#######################
 
 
-@app.route('/display_weather', methods=['GET', 'POST'])
+@flask_app.route('/display_weather', methods=['GET', 'POST'])
 def display_weather():
 
     zip_code = request.args.get('zip')
@@ -602,4 +602,4 @@ def display_weather():
 
 
 if __name__ == "__main__":
-    app.run(debug=True)
+    flask_app.run(debug=True)

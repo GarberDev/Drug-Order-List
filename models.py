@@ -3,7 +3,7 @@ from flask_migrate import Migrate
 from flask import Flask
 from datetime import datetime
 import os
-import app
+from app import flask_app
 
 
 db = SQLAlchemy()
@@ -122,5 +122,5 @@ class Comment(db.Model):
     user = db.relationship('User', backref=db.backref('comments', lazy=True))
 
 
-with app.app_context():
+with flask_app.app_context():
     db.create_all()
