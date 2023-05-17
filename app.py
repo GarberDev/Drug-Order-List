@@ -1,9 +1,9 @@
-from flask import Flask, abort, request, jsonify, render_template, redirect, url_for, flash, session
+from flask import Flask, abort, request, render_template, redirect, url_for, flash, session
 import psycopg2
 from sqlalchemy.exc import IntegrityError
 from models import db, connect_db, User, Client, MedicationToBeOrdered, MedicationOnOrder, OrderReceived, TimeOffRequest, Post, Comment
 from datetime import date
-from hidden import password
+from hidden import password, mail_username, duplicate_email
 import bcrypt
 import requests
 from flask_mail import Message, Mail
@@ -26,7 +26,7 @@ app.config['SECRET_KEY'] = 'secret'
 app.config['MAIL_SERVER'] = 'smtp-mail.outlook.com'
 app.config['MAIL_PORT'] = 587
 app.config['MAIL_USE_TLS'] = True
-app.config['MAIL_USERNAME'] = 'justingarber@outlook.com'  # Your email address
+app.config['MAIL_USERNAME'] = mail_username  # Your email address
 app.config['MAIL_PASSWORD'] = password     # Your email password
 
 mail = Mail(app)
@@ -557,8 +557,8 @@ def suggest_feature():
     if form.validate_on_submit():
         msg = Message('Feature Suggestion',
                       sender=('Feature Suggestion',
-                              'justingarber@outlook.com'),
-                      recipients=['justingarber@outlook.com'])
+                              duplicate_email),
+                      recipients=[duplicate_email])
         msg.body = f'Suggestion: {form.suggestion.data}'
         mail.send(msg)
 
