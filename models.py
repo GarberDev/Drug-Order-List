@@ -7,9 +7,11 @@ db = SQLAlchemy()
 
 def connect_db(app):
     # Retrieve the DB URL from environment variables
-    db_url = os.environ.get(
-        'postgres://drug_list_user:6OloIXwOMDOgHVmjWwQatrARDlGnwxwn@dpg-chi7iql269vf5qb7gsn0-a/drug_list')
-    app.config['drug_list'] = db_url
+    db_url = os.getenv(
+        'DATABASE_URL',
+        'postgres://drug_list_user:6OloIXwOMDOgHVmjWwQatrARDlGnwxwn@dpg-chi7iql269vf5qb7gsn0-a/drug_list'
+    )
+    app.config['SQLALCHEMY_DATABASE_URI'] = db_url
     db.app = app
     db.init_app(app)
 
