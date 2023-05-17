@@ -35,7 +35,7 @@ class MedicationToBeOrdered(db.Model):
     date_requested = db.Column(db.Date, nullable=False)
     backordered = db.Column(db.Boolean, default=False, nullable=False)
     quantity = db.Column(db.Integer, nullable=False)
-    user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
 
     user = db.relationship('User', backref='medications_on_order')
 
@@ -47,7 +47,7 @@ class MedicationOnOrder(db.Model):
     name = db.Column(db.String(100), nullable=False)
     date_order_placed = db.Column(db.Date, nullable=False)
     quantity = db.Column(db.Integer, nullable=False)
-    user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
 
     user = db.relationship(
         'User', backref='medications_on_order_backref', lazy=True)  # Change backref name here
@@ -66,13 +66,13 @@ class OrderReceived(db.Model):
 class TimeOffRequest(db.Model):
     __tablename__ = 'time_off_request'
     id = db.Column(db.Integer, primary_key=True)
-    user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     user = db.relationship('User', foreign_keys=[user_id], backref=db.backref(
         'time_off_requests', lazy=True))
     shift_time = db.Column(db.String(120), nullable=False)
     shift_coverage_date = db.Column(db.Date, nullable=False)
     covering_user_id = db.Column(
-        db.Integer, db.ForeignKey('users.id'), nullable=True)
+        db.Integer, db.ForeignKey('user.id'), nullable=True)
     covering_user = db.relationship('User', foreign_keys=[
                                     covering_user_id], backref=db.backref('covered_requests', lazy=True))
     timestamp = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
