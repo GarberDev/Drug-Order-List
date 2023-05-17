@@ -17,7 +17,7 @@
 <div class="glass-pane">
     <h3>Add Medication to be Ordered</h3>
     <form class="input" action="/medications/to-be-ordered" method="POST">
-        {{ form.hidden_tag() }}
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
         <label for="name">Medication Name:</label>
         <input type="text" id="name" name="name" required>
         <label for="quantity">Quantity:</label>
@@ -41,7 +41,6 @@
             med.quantity }}
             - Backordered: {{ med.backordered }} - Ordered by: {{ med.user.first_name }}
             <form action="/medications/on-order/{{ med.id }}" method="POST">
-                {{ form.hidden_tag() }}
                 <button type="submit">Move to On Order</button>
             </form>
 
