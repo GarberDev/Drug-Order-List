@@ -11,6 +11,7 @@ from flask_mail import Message, Mail
 from forms import FeatureSuggestionForm, RegistrationForm, LoginForm, TimeOffRequestForm, EditBlacklistedClientForm, BlacklistClientForm, CreatePostForm, CommentForm
 
 from flask_wtf.csrf import CSRFProtect
+
 app = Flask(__name__)
 
 
