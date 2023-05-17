@@ -19,13 +19,13 @@ def connect_db(flask_app):
     )
     flask_app.config['SQLALCHEMY_DATABASE_URI'] = db_url
     # with app.app_context():
-    db.app = flask_app
+    db.flask_app = flask_app
     db.init_app(flask_app)
     migrate.init_app(flask_app, db)
 
 
 class User(db.Model):
-    __tablename__ = "User"
+    __tablename__ = "user"
 
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     username = db.Column(db.String(20), unique=True, nullable=False)
