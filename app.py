@@ -11,14 +11,13 @@ from flask_mail import Message, Mail
 from forms import FeatureSuggestionForm, RegistrationForm, LoginForm, TimeOffRequestForm, EditBlacklistedClientForm, BlacklistClientForm, CreatePostForm, CommentForm
 
 from flask_wtf.csrf import CSRFProtect
-
 app = Flask(__name__)
+
 
 app.secret_key = 'your_secret_key'
 
 csrf = CSRFProtect(app)
 
-app = Flask(__name__)
 
 app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql:///drug_list'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
