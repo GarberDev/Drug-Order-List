@@ -25,7 +25,7 @@ class User(db.Model):
     first_name = db.Column(db.String(30), nullable=False)
     last_name = db.Column(db.String(30), nullable=False)
     is_manager = db.Column(db.Boolean, default=False, nullable=False)
-    comments = db.relationship('Comment', backref='user', lazy=True)
+    comments = db.relationship('Comment', backref='post', lazy=True)
 
 
 class MedicationToBeOrdered(db.Model):
@@ -107,4 +107,5 @@ class Comment(db.Model):
     timestamp = db.Column(db.DateTime, default=datetime.utcnow, nullable=False)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     post_id = db.Column(db.Integer, db.ForeignKey('posts.id'), nullable=False)
-    user = db.relationship('User', backref=db.backref('comments', lazy=True))
+    user = db.relationship(
+        'User', backref=db.backref('user_comments', lazy=True))
