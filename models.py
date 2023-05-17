@@ -20,6 +20,7 @@ def connect_db(app):
 
 class User(db.Model):
     __tablename__ = 'user'
+
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     username = db.Column(db.String(20), unique=True, nullable=False)
     password = db.Column(db.String, nullable=False)
@@ -67,6 +68,7 @@ class OrderReceived(db.Model):
 
 class TimeOffRequest(db.Model):
     __tablename__ = 'time_off_request'
+
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     user = db.relationship('User', foreign_keys=[user_id], backref=db.backref(
@@ -85,6 +87,7 @@ class TimeOffRequest(db.Model):
 
 class Client(db.Model):
     __tablename__ = 'client'
+
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(128), nullable=False)
     is_blacklisted = db.Column(db.Boolean, default=False)
@@ -94,6 +97,7 @@ class Client(db.Model):
 
 class Post(db.Model):
     __tablename__ = 'posts'
+
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     content = db.Column(db.Text, nullable=False)
     timestamp = db.Column(db.DateTime, default=datetime.utcnow, nullable=False)
@@ -103,6 +107,7 @@ class Post(db.Model):
 
 class Comment(db.Model):
     __tablename__ = 'comments'
+
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     content = db.Column(db.Text, nullable=False)
     timestamp = db.Column(db.DateTime, default=datetime.utcnow, nullable=False)
