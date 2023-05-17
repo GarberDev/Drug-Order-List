@@ -1,7 +1,7 @@
 from flask import Flask, abort, request, render_template, redirect, url_for, flash, session
 import psycopg2
 from sqlalchemy.exc import IntegrityError
-from models import db, connect_db, User, Client, MedicationToBeOrdered, MedicationOnOrder, OrderReceived, TimeOffRequest, Post, Comment
+from models import connect_db, User, Client, MedicationToBeOrdered, MedicationOnOrder, OrderReceived, TimeOffRequest, Post, Comment
 from datetime import date
 from hidden import password, mail_username, duplicate_email
 import bcrypt
