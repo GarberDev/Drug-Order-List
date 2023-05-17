@@ -1,8 +1,13 @@
 from flask_sqlalchemy import SQLAlchemy
+from flask_migrate import Migrate
+from flask import Flask
 from datetime import datetime
 import os
+import app
+
 
 db = SQLAlchemy()
+migrate = Migrate(app, db)
 
 
 def connect_db(app):
@@ -16,6 +21,7 @@ def connect_db(app):
     # with app.app_context():
     db.app = app
     db.init_app(app)
+    migrate.init_app(app, db)
 
 
 class User(db.Model):
@@ -114,3 +120,7 @@ class Comment(db.Model):
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     post_id = db.Column(db.Integer, db.ForeignKey('posts.id'), nullable=False)
     user = db.relationship('User', backref=db.backref('comments', lazy=True))
+
+
+with app.app_context():
+    db.create_all()
