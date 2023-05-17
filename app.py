@@ -9,10 +9,13 @@ import requests
 from flask_mail import Message, Mail
 from flask_migrate import Migrate
 from forms import FeatureSuggestionForm, RegistrationForm, LoginForm, TimeOffRequestForm, EditBlacklistedClientForm, BlacklistClientForm, CreatePostForm, CommentForm
-
+from flask.cli import FlaskGroup
 from flask_wtf.csrf import CSRFProtect
 
 app = Flask(__name__)
+
+cli = FlaskGroup(app)
+app.cli.add_command(cli)
 
 
 app.secret_key = 'your_secret_key'
@@ -35,6 +38,7 @@ OPENFDA_API_BASE_URL = "https://api.fda.gov/drug/"
 
 connect_db(app)
 migrate = Migrate(app, db)
+migrate.init_app(app, db)
 
 
 @app.route('/', methods=['GET', 'POST'])

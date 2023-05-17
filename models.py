@@ -7,7 +7,7 @@ import app
 
 
 db = SQLAlchemy()
-migrate = Migrate(app, db)
+migrate = Migrate()
 
 
 def connect_db(app):
