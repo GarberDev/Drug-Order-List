@@ -16,6 +16,17 @@ def connect_db(app):
     db.init_app(app)
 
 
+class User(db.Model):
+    __tablename__ = 'user'
+    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    username = db.Column(db.String(20), unique=True, nullable=False)
+    password = db.Column(db.String, nullable=False)
+    email = db.Column(db.String(50), unique=True, nullable=False)
+    first_name = db.Column(db.String(30), nullable=False)
+    last_name = db.Column(db.String(30), nullable=False)
+    is_manager = db.Column(db.Boolean, default=False, nullable=False)
+
+
 class MedicationToBeOrdered(db.Model):
     __tablename__ = "medication_to_be_ordered"
 
@@ -50,17 +61,6 @@ class OrderReceived(db.Model):
     date_received = db.Column(db.Date, nullable=False)
     quantity = db.Column(db.Integer, nullable=False)
     received_by = db.Column(db.String(30), nullable=False)
-
-
-class User(db.Model):
-    __tablename__ = 'user'
-    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    username = db.Column(db.String(20), unique=True, nullable=False)
-    password = db.Column(db.String, nullable=False)
-    email = db.Column(db.String(50), unique=True, nullable=False)
-    first_name = db.Column(db.String(30), nullable=False)
-    last_name = db.Column(db.String(30), nullable=False)
-    is_manager = db.Column(db.Boolean, default=False, nullable=False)
 
 
 class TimeOffRequest(db.Model):
