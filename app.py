@@ -19,7 +19,7 @@ app.secret_key = 'your_secret_key'
 csrf = CSRFProtect(app)
 
 
-app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql:///drug_list'
+# app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql:///drug_list'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['SECRET_KEY'] = 'secret'
 app.config['MAIL_SERVER'] = 'smtp-mail.outlook.com'
