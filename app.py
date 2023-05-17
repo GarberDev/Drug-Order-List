@@ -12,6 +12,7 @@ from forms import FeatureSuggestionForm, RegistrationForm, LoginForm, TimeOffReq
 from flask.cli import FlaskGroup
 from flask_wtf.csrf import CSRFProtect
 
+
 flask_app = Flask(__name__)
 
 cli = FlaskGroup(flask_app)

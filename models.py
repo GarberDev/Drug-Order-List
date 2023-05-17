@@ -3,8 +3,8 @@ from flask_migrate import Migrate
 from flask import Flask
 from datetime import datetime
 import os
-from app import flask_app
 
+flask_app = Flask(__name__)
 
 db = SQLAlchemy()
 migrate = Migrate()
