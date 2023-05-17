@@ -13,6 +13,13 @@ from flask.cli import FlaskGroup
 from flask_wtf.csrf import CSRFProtect
 
 
+# def create_app():
+#     flask_app = Flask(__name__)
+#     csrf.init_app(flask_app)
+
+#     return flask_app
+
+
 flask_app = Flask(__name__)
 
 # cli = FlaskGroup(flask_app)
