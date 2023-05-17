@@ -38,8 +38,8 @@ mail = Mail(flask_app)
 OPENFDA_API_BASE_URL = "https://api.fda.gov/drug/"
 
 connect_db(flask_app)
-migrate = Migrate(flask_app, db)
-migrate.init_app(flask_app, db)
+# migrate = Migrate(flask_app, db)
+# migrate.init_app(flask_app, db)
 
 
 @flask_app.route('/', methods=['GET', 'POST'])

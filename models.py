@@ -19,7 +19,7 @@ def connect_db(flask_app):
     )
     flask_app.config['SQLALCHEMY_DATABASE_URI'] = db_url
     # with app.app_context():
-    db.flask_app = flask_app
+    db.app = flask_app
     db.init_app(flask_app)
     migrate.init_app(flask_app, db)
 
