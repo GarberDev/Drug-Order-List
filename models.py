@@ -4,7 +4,6 @@ from flask import Flask
 from datetime import datetime
 import os
 
-flask_app = Flask(__name__)
 
 db = SQLAlchemy()
 migrate = Migrate()
@@ -19,9 +18,8 @@ def connect_db(flask_app):
     )
     flask_app.config['SQLALCHEMY_DATABASE_URI'] = db_url
     # with app.app_context():
-    db.app = flask_app
     db.init_app(flask_app)
-    migrate.init_app(flask_app, db)
+    migrate = Migrate(flask_app, db)
 
 
 class User(db.Model):
@@ -120,7 +118,3 @@ class Comment(db.Model):
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     post_id = db.Column(db.Integer, db.ForeignKey('posts.id'), nullable=False)
     user = db.relationship('User', backref=db.backref('comments', lazy=True))
-
-
-with flask_app.app_context():
-    db.create_all()
