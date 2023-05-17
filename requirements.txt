@@ -25,3 +25,4 @@ WTForms==3.0.1
 zope.interface==6.0
 gunicorn
 pytest
+Flask-Migrate

@@ -67,7 +67,7 @@ class OrderReceived(db.Model):
 
 
 class TimeOffRequest(db.Model):
-    __tablename__ = 'time_off_request'
+    __tablename__ = "time_off_request"
 
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
@@ -86,7 +86,7 @@ class TimeOffRequest(db.Model):
 
 
 class Client(db.Model):
-    __tablename__ = 'client'
+    __tablename__ = "client"
 
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(128), nullable=False)
@@ -96,7 +96,7 @@ class Client(db.Model):
 
 
 class Post(db.Model):
-    __tablename__ = 'posts'
+    __tablename__ = "posts"
 
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     content = db.Column(db.Text, nullable=False)
@@ -106,7 +106,7 @@ class Post(db.Model):
 
 
 class Comment(db.Model):
-    __tablename__ = 'comments'
+    __tablename__ = "comments"
 
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     content = db.Column(db.Text, nullable=False)
