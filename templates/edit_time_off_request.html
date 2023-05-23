@@ -5,7 +5,7 @@
 <div class="glass-pane">
     <h1>Edit Time Off Request</h1>
     <form method="POST" action="{{ url_for('edit_time_off_request', time_off_request_id=time_off_request.id) }}">
-        {% with messages = get_flashed_messages(with_categories=true) %}
+        <!-- {% with messages = get_flashed_messages(with_categories=true) %}
         {% if messages %}
         <ul class=flashes>
             {% for category, message in messages %}
@@ -22,7 +22,7 @@
             {% endfor %}
         </ul>
         {% endif %}
-        {% endfor %}
+        {% endfor %} -->
 
 
         <div class="form-group">

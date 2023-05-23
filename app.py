@@ -130,6 +130,7 @@ def medications():
     meds_on_order = MedicationOnOrder.query.all()
     orders_received = OrderReceived.query.all()
     joke = get_joke()
+
     return render_template("medications.html", joke=joke, meds_to_be_ordered=meds_to_be_ordered, meds_on_order=meds_on_order, orders_received=orders_received)
 
 
