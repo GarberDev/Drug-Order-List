@@ -1,56 +1,52 @@
-from flask import Flask, abort, request, render_template, redirect, url_for, flash, session
-import psycopg2
-from sqlalchemy.exc import IntegrityError
-from models import connect_db, db, User, Client, MedicationToBeOrdered, MedicationOnOrder, OrderReceived, TimeOffRequest, Post, Comment
+import os
 from datetime import date
-from hidden import password, mail_username, duplicate_email
+
+# from hidden import password, mail_username, duplicate_email
 import bcrypt
+import psycopg2
 import requests
-from flask_mail import Message, Mail
-# from flask_migrate import Migrate
-from forms import FeatureSuggestionForm, RegistrationForm, LoginForm, TimeOffRequestForm, EditBlacklistedClientForm, BlacklistClientForm, CreatePostForm, CommentForm
+from dotenv import load_dotenv
+from flask import (Flask, abort, flash, redirect, render_template, request,
+                   session, url_for)
 from flask.cli import FlaskGroup
 from flask_wtf.csrf import CSRFProtect
-
-
-# def create_app():
-#     flask_app = Flask(__name__)
-#     csrf.init_app(flask_app)
-
-#     return flask_app
-
+from forms import (BlacklistClientForm, CommentForm, CreatePostForm,
+                   EditBlacklistedClientForm, FeatureSuggestionForm, LoginForm,
+                   RegistrationForm, TimeOffRequestForm)
+from models import (Client, Comment, MedicationOnOrder, MedicationToBeOrdered,
+                    OrderReceived, Post, TimeOffRequest, User, connect_db, db)
+from sendgrid import SendGridAPIClient
+from sendgrid.helpers.mail import Mail
+from sqlalchemy.exc import IntegrityError
 
 flask_app = Flask(__name__)
-
-# cli = FlaskGroup(flask_app)
-# flask_app.cli.add_command(cli)
-
 
 flask_app.secret_key = 'your_secret_key'
 
 csrf = CSRFProtect(flask_app)
 
+load_dotenv()
+from_username = os.getenv("FROM_USERNAME")
+to_email = os.getenv("TO_EMAIL")
+GOOGLE_API_KEY = os.getenv("GOOGLE_API_KEY")
+sendgridapikey = os.getenv('SENDGRID_API_KEY')
 
-# app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql:///drug_list'
+flask_app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql:///drug_list'
 flask_app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 flask_app.config['SECRET_KEY'] = 'secret'
-flask_app.config['MAIL_SERVER'] = 'smtp-mail.outlook.com'
-flask_app.config['MAIL_PORT'] = 587
-flask_app.config['MAIL_USE_TLS'] = True
-flask_app.config['MAIL_USERNAME'] = mail_username  # Your email address
-flask_app.config['MAIL_PASSWORD'] = password     # Your email password
+
 
 mail = Mail(flask_app)
 
 OPENFDA_API_BASE_URL = "https://api.fda.gov/drug/"
+
 
 connect_db(flask_app)
 
 with flask_app.app_context():
     db.create_all()
 
-# migrate = Migrate(flask_app, db)
-# migrate.init_app(flask_app, db)
+#################################################################################
 
 
 @flask_app.route('/', methods=['GET', 'POST'])
@@ -508,8 +504,6 @@ def get_weather(zip_code):
         return {'error': 'No zip code provided'}
     ###################### google geocoding api###################
 
-    from hidden import GOOGLE_API_KEY
-
     # Use Google Geocoding API to get latitude and longitude
     geo_url = f'https://maps.googleapis.com/maps/api/geocode/json?address={zip_code}&key={GOOGLE_API_KEY}'
     geo_response = requests.get(geo_url)
@@ -573,17 +567,25 @@ def get_weather(zip_code):
 def suggest_feature():
     form = FeatureSuggestionForm()
     if form.validate_on_submit():
-        msg = Message('Feature Suggestion',
-                      sender=('Feature Suggestion',
-                              duplicate_email),
-                      recipients=[duplicate_email])
-        msg.body = f'Suggestion: {form.suggestion.data}'
-        mail.send(msg)
+        message = Mail(
+            from_email=('Feature Suggestion', from_username),
+            to_emails=to_email,
+            subject='Feature Suggestion',
+            plain_text_content=f'Suggestion: {form.suggestion.data}')
 
-        flash('Feature suggestion submitted. Thank you!', 'success')
-        return redirect(url_for('medications'))
+        try:
+            sg = SendGridAPIClient(sendgridapikey)
+            response = sg.send(message)
+            print(response.status_code)
+            print(response.body)
+            print(response.headers)
+            flash('Feature suggestion submitted. Thank you!', 'success')
+            return redirect(url_for('medications'))
+        except Exception as e:
+            print(str(e))
 
     return render_template('suggest_feature.html', form=form)
+
 
 ####################### weatherpage#######################
 

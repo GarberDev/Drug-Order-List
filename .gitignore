@@ -1,5 +1,6 @@
 /venv/
 /__pycache__/
+.env
 drug_list.sql
 Procfile
 seed.py
